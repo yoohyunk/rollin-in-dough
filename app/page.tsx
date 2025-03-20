@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import "./globals.css";
+import AuthButton from "@/components/authButton";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       >
         Rollin in Dough
       </h1>
+      <AuthButton />
       <ul className="list-none p-0">
         <li className="my-4">
           <Link
