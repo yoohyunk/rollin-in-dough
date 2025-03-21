@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import CookieCard, { CookieProduct } from './cookies';
+import CookieCard, { CookieProduct } from '../../cookies';
 import Header from '../../header';
 import Footer from '../../footer';
 
