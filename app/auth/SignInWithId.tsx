@@ -18,6 +18,7 @@ import SignInWithGoogle from "./SignInWithGoogle";
 export default function SignInWithId() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -26,17 +27,42 @@ export default function SignInWithId() {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (currentForm === "login") {
+      if (!email || !password) {
+        setError("Please fill in all required fields.");
+        return;
+      }
+    } else if (currentForm === "signup") {
+      if (!firstName || !lastName || !email || !password || !passwordConfirm) {
+        setError("Please fill in all required fields.");
+        return;
+      }
+      if (!passwordRegex.test(password)) {
+        setError(
+          "Password must be at least 8 characters long and include both letters and numbers."
+        );
+        setPassword("");
+        setPasswordConfirm("");
+        return;
+      }
+      if (password !== passwordConfirm) {
+        setError("Passwords do not match.");
+        setPassword("");
+        setPasswordConfirm("");
+        return;
+      }
+    }
     try {
       if (currentForm === "login") {
         const user = await signInWithEmail(email, password);
         console.log("User signed in:", user);
       } else if (currentForm === "signup") {
         const user = await signUpWithEmail(
-          email,
-          password,
           firstName,
-          lastName
+          lastName,
+          email,
+          password
         );
         console.log("User signed up:", user);
       }
@@ -73,6 +99,7 @@ export default function SignInWithId() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
             {error && <p style={{ color: "red" }}>{error}</p>}
           </CardContent>
           <CardFooter className="flex-col gap-2">
@@ -99,7 +126,12 @@ export default function SignInWithId() {
             <div>
               Don{"'"}t have an account?{" "}
               <button
-                onClick={() => setCurrentForm("signup")}
+                onClick={() => {
+                  setCurrentForm("signup");
+                  setError(null);
+                  setEmail("");
+                  setPassword("");
+                }}
                 className="text-blue-400 hover:text-blue-600"
               >
                 Sign up
@@ -110,7 +142,7 @@ export default function SignInWithId() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Sign In</CardTitle>
+            <CardTitle>Sign Up</CardTitle>
             <CardDescription>Sign In with Email</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -142,8 +174,16 @@ export default function SignInWithId() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <Input
+              type="password"
+              placeholder="Confirm Password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              required
+            />
             {error && <p style={{ color: "red" }}>{error}</p>}
           </CardContent>
+
           <CardFooter className="flex-col gap-2 ">
             <Button
               type="submit"
@@ -167,7 +207,14 @@ export default function SignInWithId() {
             <div>
               Have an account?{" "}
               <button
-                onClick={() => setCurrentForm("login")}
+                onClick={() => {
+                  setCurrentForm("login");
+                  setFirstName("");
+                  setLastName("");
+                  setEmail("");
+                  setPassword("");
+                  setPasswordConfirm("");
+                }}
                 className="text-blue-400 hover:text-blue-600"
               >
                 Sign in
