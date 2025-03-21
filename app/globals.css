@@ -121,3 +121,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Header styling */
+  .site-header {
+    @apply w-full bg-teal-500 py-4 shadow-md sticky top-0 z-50;
+  }
+  
+  .nav-link {
+    @apply text-white font-semibold hover:text-teal-100 transition-colors duration-300;
+  }
+
+}
+@layer base {
+  * {
+    @apply outline-ring/50;
+    /* Remove border-border or replace with a specific border style */
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: url('/pink.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+  }
+}
