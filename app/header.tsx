@@ -25,7 +25,7 @@ export default function Header() {
         <nav className="container mx-auto flex justify-center items-center">
           <ul className="flex space-x-8">
             <li><Link href="/" className="nav-link">Home</Link></li>
-            <li><Link href="/(tabs)/menu" className="nav-link">View Menu</Link></li>
+            <li><Link href="/menu" className="nav-link">View Menu</Link></li>
             <li><Link href="/cart" className="nav-link">View Cart</Link></li>
             <li><Link href="/checkout" className="nav-link">Checkout</Link></li>
           </ul>

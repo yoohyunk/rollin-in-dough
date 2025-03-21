@@ -8,14 +8,15 @@ interface Cookie {
     name: string;
     price: number;
     quantity: number;
+    image: string; // Add image property
 }
 
 const CartPage: React.FC = () => {
     // Example cart data
     const cartItems: Cookie[] = [
-        { id: 1, name: 'Chocolate Chip', price: 2.5, quantity: 2 },
-        { id: 2, name: 'Oatmeal Raisin', price: 3.0, quantity: 1 },
-        { id: 3, name: 'Sugar Cookie', price: 1.5, quantity: 3 },
+        { id: 1, name: 'Chocolate Chip', price: 2.5, quantity: 2, image: '/images/chocolate-chip.jpg' },
+        { id: 2, name: 'Oatmeal Raisin', price: 3.0, quantity: 1, image: '/images/oatmeal-raisin.jpg' },
+        { id: 3, name: 'Sugar Cookie', price: 1.5, quantity: 3, image: '/images/sugar-cookie.jpg' },
     ];
 
     const calculateTotal = () => {
@@ -30,9 +31,16 @@ const CartPage: React.FC = () => {
             <div className="cart-items">
                 {cartItems.map((item) => (
                     <div key={item.id} className="cart-item flex justify-between items-center border-b py-2">
-                        <div className="item-details">
-                            <h2 className="text-lg font-semibold">{item.name}</h2>
-                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                        <div className="item-details flex items-center">
+                            <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded mr-4"
+                            />
+                            <div>
+                                <h2 className="text-lg font-semibold">{item.name}</h2>
+                                <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                            </div>
                         </div>
                         <div className="item-price text-right">
                             <p className="text-lg font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
