@@ -121,3 +121,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Header styling */
+  .site-header {
+    @apply w-full bg-teal-500 py-4 shadow-md sticky top-0 z-50;
+  }
+  
+  .nav-link {
+    @apply text-white font-semibold hover:text-teal-100 transition-colors duration-300;
+  }
+
+}
