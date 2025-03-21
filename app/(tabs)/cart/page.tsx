@@ -8,7 +8,7 @@ interface Cookie {
     name: string;
     price: number;
     quantity: number;
-    image: string; // Add image property
+    image: string;
 }
 
 const CartPage: React.FC = () => {
@@ -25,38 +25,52 @@ const CartPage: React.FC = () => {
 
     return (
         <>
-        <Header/>
-        <div className="cart-page">
-            <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
-            <div className="cart-items">
-                {cartItems.map((item) => (
-                    <div key={item.id} className="cart-item flex justify-between items-center border-b py-2">
-                        <div className="item-details flex items-center">
-                            <img
-                                src={item.image}
-                                alt={item.name}
-                                className="w-16 h-16 object-cover rounded mr-4"
-                            />
-                            <div>
-                                <h2 className="text-lg font-semibold">{item.name}</h2>
-                                <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                            </div>
+            <Header />
+            <main className="min-h-screen bg-[#ffccff] py-8">
+                <div className="container mx-auto px-4">
+                    <h1 className="text-4xl font-bold text-[#000080] text-center mb-8">Your Cart</h1>
+                    
+                    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                        <div className="space-y-6">
+                            {cartItems.map((item) => (
+                                <div key={item.id} className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                                    <div className="flex items-center space-x-4">
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-20 h-20 object-cover rounded"
+                                        />
+                                        <div>
+                                            <h2 className="text-lg font-semibold text-gray-800">{item.name}</h2>
+                                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-semibold text-teal-600">
+                                            ${(item.price * item.quantity).toFixed(2)}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <div className="item-price text-right">
-                            <p className="text-lg font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+
+                        <div className="mt-6 pt-4 border-t border-gray-200">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-xl font-bold text-gray-800">Total:</h2>
+                                <p className="text-xl font-bold text-teal-600">${calculateTotal()}</p>
+                            </div>
+                            
+                            <button
+                                className="mt-6 w-full bg-teal-500 text-white py-3 px-6 rounded-md hover:bg-teal-600 transition-colors duration-300 font-medium"
+                                onClick={() => window.location.href = '/checkout'}
+                            >
+                                Proceed to Checkout
+                            </button>
                         </div>
                     </div>
-                ))}
-            </div>
-            <div className="cart-total mt-4 flex justify-between items-center border-t pt-4">
-                <h2 className="text-xl font-bold">Total:</h2>
-                <p className="text-xl font-bold">${calculateTotal()}</p>
-            </div>
-            <button className="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Checkout
-            </button>
-        </div>
-        <Footer/>
+                </div>
+            </main>
+            <Footer />
         </>
     );
 };

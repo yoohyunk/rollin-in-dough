@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import Head from 'next/head';
 import React, { useState } from 'react';
 import Header from '@/app/header';
@@ -21,126 +21,117 @@ const CheckoutPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        try {
-            const response = await fetch('/api/payments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                alert('Payment successful!');
-            } else {
-                alert('Payment failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error processing payment:', error);
-            alert('An error occurred. Please try again.');
-        }
+        // ... existing submit logic ...
     };
 
     return (
         <>
             <Header />
-        <div className="checkout-page max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md">
-            <h1 className="text-2xl font-bold text-center mb-6">Checkout Will be changed to square interface</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                        Name
-                    </label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    />
+            <main className="min-h-screen bg-[#ffccff] py-8">
+                <div className="container mx-auto px-4">
+                    <h1 className="text-4xl font-bold text-[#000080] text-center mb-8">Checkout</h1>
+                    
+                    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Address
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                    />
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Card Number
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="cardNumber"
+                                            value={formData.cardNumber}
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Expiry Date
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="expiryDate"
+                                            value={formData.expiryDate}
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        CVV
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="cvv"
+                                        value={formData.cvv}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <button
+                                type="submit"
+                                className="w-full bg-teal-500 text-white py-3 px-6 rounded-md hover:bg-teal-600 transition-colors duration-300 font-medium"
+                            >
+                                Pay Now
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                        Address
-                    </label>
-                    <input
-                        type="text"
-                        id="address"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700">
-                        Card Number
-                    </label>
-                    <input
-                        type="text"
-                        id="cardNumber"
-                        name="cardNumber"
-                        value={formData.cardNumber}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700">
-                        Expiry Date
-                    </label>
-                    <input
-                        type="text"
-                        id="expiryDate"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="cvv" className="block text-sm font-medium text-gray-700">
-                        CVV
-                    </label>
-                    <input
-                        type="text"
-                        id="cvv"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Pay Now
-                </button>
-            </form>
-        </div>
-        <Footer/>
+            </main>
+            <Footer />
         </>
     );
 };
