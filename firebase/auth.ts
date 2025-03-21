@@ -1,49 +1,57 @@
 // auth.ts
-import { auth, googleProvider, db } from "./firebaseConfig"; // adjust the path if needed
+import { auth, googleProvider } from "./firebaseConfig";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
   User,
+  getAdditionalUserInfo,
+  sendEmailVerification,
+  updateProfile,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
-/**
- * Creates a new user with email and password, then stores additional user info in Firestore.
- *
- * @param email - The user's email address (used for authentication, not stored in Firestore).
- * @param password - The user's password.
- * @param firstName - The user's first name.
- * @param lastName - The user's last name.
- * @returns The authenticated Firebase user.
- */
+import { Address } from "@/types/customerData";
+
+const defaultAddress: Address = {
+  address_line_1: "",
+  locality: "",
+  administrative_district_level_1: "",
+  postal_code: "",
+};
+const defaultPhoneNumber = "";
+
 export const signUpWithEmail = async (
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string
+  given_name: string,
+  family_name: string,
+  email_address: string,
+  password: string
 ): Promise<User> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      email,
+      email_address,
       password
     );
     const user = userCredential.user;
-    // Save additional user info in Firestore under "users" collection, storing uid instead of email
-    await setDoc(doc(db, "users", user.uid), {
-      firstName,
-      lastName,
-      uid: user.uid,
-      createdAt: new Date(),
-      // Add any additional fields here
+
+    if (!user) {
+      throw new Error("User is not signed in");
+    }
+    await updateProfile(user, {
+      displayName: `${given_name} ${family_name}`,
     });
+
+    // Send email verification to the new user
+    await sendEmailVerification(user);
+    console.log("Email verification sent to:", user.email);
+
     return user;
   } catch (error) {
     console.error("Error signing up:", error);
     throw error;
   }
 };
+
 export const signInWithEmail = async (
   email: string,
   password: string
@@ -54,56 +62,89 @@ export const signInWithEmail = async (
       email,
       password
     );
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      console.log("Email not verified. Please verify your email.");
+      return user;
+    }
+
+    const displayName = user.displayName || "";
+    const nameParts = displayName.split(" ");
+    const given_name = nameParts[0] || "";
+    const family_name = nameParts.slice(1).join(" ") || "";
+    const email_address = user.email;
+
+    const squareRes = await fetch("/api/create-customer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        given_name,
+        family_name,
+        email_address,
+        phone_number: defaultPhoneNumber,
+        address: defaultAddress,
+      }),
+    });
+
+    if (!squareRes.ok) {
+      throw new Error("Failed to create Square customer");
+    }
+
+    const squareData = await squareRes.json();
+    console.log("Square customer created:", squareData.customer);
+
     return userCredential.user;
   } catch (error) {
     console.error("Error signing in with email:", error);
     throw error;
   }
 };
-/**
- * Signs in a user with Google and stores additional info if the user is signing in for the first time.
- *
- * @returns The authenticated Firebase user.
- */
+
 export const signInWithGoogle = async (): Promise<User> => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
-    if (!userDoc.exists()) {
-      // Store additional info if user document doesn't exist yet, storing uid instead of email
-      await setDoc(userDocRef, {
-        displayName: user.displayName,
-        uid: user.uid,
-        createdAt: new Date(),
-        // Add any additional fields here
+
+    const additionalUserInfo = getAdditionalUserInfo(result);
+    const isNewUser = additionalUserInfo?.isNewUser;
+
+    const displayName = user.displayName || "";
+    const nameParts = displayName.split(" ");
+    const given_name = nameParts[0] || "";
+    const family_name = nameParts.slice(1).join(" ") || "";
+
+    if (isNewUser) {
+      const squareRes = await fetch("/api/create-customer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          given_name,
+          family_name,
+          email_address: user.email,
+          phone_number: defaultPhoneNumber,
+          address: defaultAddress,
+        }),
       });
+
+      if (!squareRes.ok) {
+        throw new Error("Failed to create Square customer");
+      }
+
+      const squareData = await squareRes.json();
+      console.log("Square customer created:", squareData.customer);
+    } else {
+      console.log("Existing user. Signing in without creating a new customer.");
     }
+
     return user;
   } catch (error) {
     console.error("Error with Google sign in:", error);
-    throw error;
-  }
-};
-
-/**
- * Updates or adds the address for a given user in Firestore.
- *
- * @param userId - The Firebase user ID.
- * @param address - An object containing address details.
- * @example address = { street: "123 Main St", city: "Anytown", state: "CA", zip: "12345" }
- */
-export const updateUserAddress = async (
-  userId: string,
-  address: { street: string; city: string; state: string; zip: string }
-): Promise<void> => {
-  try {
-    const userDocRef = doc(db, "users", userId);
-    await updateDoc(userDocRef, { address });
-    console.log("Address updated successfully for user:", userId);
-  } catch (error) {
-    console.error("Error updating address:", error);
     throw error;
   }
 };
