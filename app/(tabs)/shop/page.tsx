@@ -1,8 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import CookieCard, { CookieProduct } from '../../cookies';
-import Header from '../../header';
-import Footer from '../../footer';
+import Image from 'next/image';
 
 interface CartItem {
   product: CookieProduct;
@@ -16,26 +15,26 @@ export default function MenuPage() {
       id: '1',
       name: 'Chocolate Chip Cookie',
       price: 2.5,
-      description: 'A classic cookie with gooey chocolate chips.',
-      imageUrl: '/images/chocolate-chip.jpg',
+      description: 'A classic cookie with gooey chocolate chips. Why mess with a classic',
+      imageUrl: '/chocolate-chip.png',
       ingredients: ['Flour', 'Sugar', 'Chocolate Chips', 'Butter'],
       allergens: ['Gluten', 'Dairy'],
     },
     {
       id: '2',
-      name: 'Oatmeal Raisin Cookie',
+      name: 'Sugar Cookie',
       price: 2.0,
-      description: 'A chewy cookie with oats and raisins.',
-      imageUrl: '/images/oatmeal-raisin.jpg',
+      description: 'Let’s add a little whimsy! Have you ever had a frosted Animal Cracker? This is simple & classic— vanilla cookie, vanilla frosting, with a little colourful fun!',
+      imageUrl: '/sugar-cookie.png',
       ingredients: ['Oats', 'Raisins', 'Brown Sugar', 'Butter'],
       allergens: ['Gluten', 'Dairy'],
     },
     {
       id: '3',
-      name: 'Peanut Butter Cookie',
+      name: 'Nutella loaded coissant',
       price: 2.8,
-      description: 'A rich cookie with creamy peanut butter.',
-      imageUrl: '/images/peanut-butter.jpg',
+      description: 'Loaded Nutella cookie wrapped in a croissant, and finished off with a chocolate-hazelnut ganache, Bueno pieces, and toffee bits. Get ready to be chocolate wasted!',
+      imageUrl: '/nutella-croissant.png', 
       ingredients: ['Peanut Butter', 'Sugar', 'Eggs'],
       allergens: ['Peanuts'],
     },
@@ -64,10 +63,10 @@ export default function MenuPage() {
 
   return (
     <>
-      <Header />
-      <main className="min-h-screen bg-[#ffccff] py-8">
+ 
+      <main className="min-h-screen py-8 ">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-[#000080] text-center mb-8">Cookies</h1>
+          <h1 className="text-4xl font-bold text-center mb-8">Cookies</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {cookieProducts.map(product => (
@@ -81,7 +80,7 @@ export default function MenuPage() {
 
           {cartItems.length > 0 && (
             <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold text-[#000080] mb-4">Shopping Cart</h2>
+              <h2 className="text-2xl font-bold mb-4">Shopping Cart</h2>
               <ul className="divide-y divide-gray-200">
                 {cartItems.map((item, index) => (
                   <li key={index} className="py-3 flex justify-between items-center">
@@ -106,7 +105,7 @@ export default function MenuPage() {
           )}
         </div>
       </main>
-      <Footer />
+ 
     </>
   );
 }

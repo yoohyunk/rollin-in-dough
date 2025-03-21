@@ -26,7 +26,7 @@ export default function CookieCard({ product, onAddToCart }: CookieCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:bg-[#fbdb8a] transition-shadow duration-300">
       <div className="relative h-48 w-full">
         {product.imageUrl ? (
           <Image
@@ -43,9 +43,9 @@ export default function CookieCard({ product, onAddToCart }: CookieCardProps) {
       </div>
       
       <div className="p-4">
-        <h2 className="text-xl font-bold text-[#000080] mb-2">{product.name}</h2>
+        <h2 className="text-xl font-bold text-[#fc3296] mb-2">{product.name}</h2>
         <p className="text-gray-700 mb-3">{product.description}</p>
-        <p className="text-lg font-semibold text-[#000080] mb-3">${product.price.toFixed(2)}</p>
+        <p className="text-lg font-semibold text-[#fc3296] mb-3">${product.price.toFixed(2)}</p>
         
         {product.allergens && product.allergens.length > 0 && (
           <p className="text-sm text-red-500 mb-3">
@@ -64,7 +64,7 @@ export default function CookieCard({ product, onAddToCart }: CookieCardProps) {
           />
           <button 
             onClick={handleAddToCart}
-            className="ml-auto bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition-colors duration-300"
+            className="ml-auto bg-[#fc3296] text-white py-2 px-4 rounded hover:bg-[#e88b22] transition-colors duration-300"
           >
             Add to Cart
           </button>

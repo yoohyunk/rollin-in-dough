@@ -133,3 +133,17 @@
   }
 
 }
+@layer base {
+  * {
+    @apply outline-ring/50;
+    /* Remove border-border or replace with a specific border style */
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: url('/pink.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+  }
+}

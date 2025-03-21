@@ -1,46 +1,29 @@
+'use client';
 import React from 'react';
+import Link from 'next/link';
 
 const Footer: React.FC = () => {
     return (
-        <footer style={styles.footer}>
-            <div style={styles.container}>
-                <p style={styles.text}>© 2023 Rollin' in Dough. All rights reserved.</p>
-                <button style={styles.button} onClick={() => alert('Contact us at: support@rollinindough.com')}>
-                    Contact Us
-                </button>
+        <footer className="bg-[#fc3296] text-white py-4 md:py-6 w-full">
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
+                {/* Main container - stacked vertically with equal spacing */}
+                <div className="flex flex-col items-center justify-center space-y-4">
+                    {/* Links stacked vertically */}
+                    <Link href="/about" className="text-sm md:text-base text-center hover:text-[#e88b22]  transition-colors">
+                        About Us
+                    </Link>
+                    <Link href="/contact" className="text-sm md:text-base text-center hover:text-[#e88b22]  transition-colors">
+                        Contact us
+                    </Link>
+                    
+                    {/* Copyright text */}
+                    <p className="text-sm md:text-base text-center">
+                        © 2025 Rollin' in Dough. All rights reserved.
+                    </p>
+                </div>
             </div>
         </footer>
     );
-};
-
-const styles = {
-    footer: {
-        backgroundColor: '#333',
-        color: '#fff',
-        padding: '20px 0',
-        textAlign: 'center' as const,
-    },
-    container: {
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0 20px',
-    },
-    text: {
-        margin: 0,
-        fontSize: '14px',
-    },
-    button: {
-        backgroundColor: '#ff9800',
-        color: '#fff',
-        border: 'none',
-        padding: '10px 20px',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        fontSize: '14px',
-    },
 };
 
 export default Footer;
