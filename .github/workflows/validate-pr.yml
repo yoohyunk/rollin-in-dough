@@ -64,5 +64,7 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Echo Firebase Client Email
+        run: echo $NEXT_FIREBASE_CLIENT_EMAIL
       - name: Run build
         run: npm run build
