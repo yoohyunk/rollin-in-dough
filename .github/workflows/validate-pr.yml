@@ -42,10 +42,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     env:
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       SQUARE_ACCESS_TOKEN: ${{ secrets.SQUARE_ACCESS_TOKEN }}
       FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-      NEXT_FIREBASE_CLIENT_EMAIL: ${{ secrets.NEXT_FIREBASE_CLIENT_EMAIL }}
+      NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL: ${{ secrets.NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL }}
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
@@ -64,5 +63,7 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Echo Firebase Client Email
+        run: echo hello "$NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL"
       - name: Run build
         run: npm run build
