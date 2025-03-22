@@ -1,8 +1,7 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
  
-
 interface Cookie {
     id: number;
     name: string;
@@ -12,20 +11,37 @@ interface Cookie {
 }
 
 const CartPage: React.FC = () => {
-
-    const cartItems: Cookie[] = [
+    // Convert to state so we can update it
+    const [cartItems, setCartItems] = useState<Cookie[]>([
         { id: 1, name: 'Chocolate Chip', price: 2.5, quantity: 2, image: '/chocolate-chip.png' },
         { id: 2, name: 'Sugar Cookie', price: 3.0, quantity: 1, image: '/sugar-cookie.png' },
         { id: 3, name: 'Nutella Loaded Coissant', price: 1.5, quantity: 3, image: '/nutella-croissant.png' },
-    ];
+    ]);
 
     const calculateTotal = () => {
         return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
     };
 
+    // Function to handle quantity updates
+    const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
+        if (newQuantity === 0) {
+            // Confirm before removing item
+            const confirmed = window.confirm("Are you sure you want to remove this item from your cart?");
+            
+            if (confirmed) {
+                // Remove the item
+                setCartItems(cartItems.filter(item => item.id !== itemId));
+            }
+        } else {
+            // Update quantity
+            setCartItems(cartItems.map(item => 
+                item.id === itemId ? { ...item, quantity: newQuantity } : item
+            ));
+        }
+    };
+
     return (
         <>
-       
             <main className="min-h-screen py-8">
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl font-bold text-center mb-8">Your Cart</h1>
@@ -35,7 +51,7 @@ const CartPage: React.FC = () => {
                             {cartItems.map((item) => (
                                 <div 
                                     key={item.id} 
-                                    className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300 cursor-pointer"
+                                    className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300"
                                 >
                                     <div className="flex items-center space-x-4">
                                         <div className="relative w-20 h-20">
@@ -48,7 +64,21 @@ const CartPage: React.FC = () => {
                                         </div>
                                         <div>
                                             <h2 className="text-lg font-semibold">{item.name}</h2>
-                                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                            <div className="flex items-center mt-2 space-x-2">
+                                                <button 
+                                                    onClick={() => handleUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
+                                                    className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="text-gray-700">{item.quantity}</span>
+                                                <button 
+                                                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                                    className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="text-right">

@@ -58,7 +58,30 @@ export default function MenuPage() {
       setCartItems([...cartItems, { product, quantity }]);
     }
 
-    alert(`${quantity} ${product.name}(s) added to cart!`);
+    //alert(`${quantity} ${product.name}(s) added to cart!`); alert for database debugging 
+  };
+    
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+    // Find the item
+    const existingItemIndex = cartItems.findIndex(item => item.product.id === productId);
+    
+    if (existingItemIndex >= 0) {
+      // If quantity is set to 0, confirm deletion
+      if (newQuantity === 0) {
+        const confirmed = window.confirm("Are you sure you want to remove this item from your cart?");
+        
+        if (confirmed) {
+          // Remove the item from cart
+          const updatedCart = cartItems.filter(item => item.product.id !== productId);
+          setCartItems(updatedCart);
+        }
+      } else {
+        // Update quantity
+        const updatedCart = [...cartItems];
+        updatedCart[existingItemIndex].quantity = newQuantity;
+        setCartItems(updatedCart);
+      }
+    }
   };
 
   return (
@@ -82,9 +105,26 @@ export default function MenuPage() {
             <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-2xl font-bold mb-4">Shopping Cart</h2>
               <ul className="divide-y divide-gray-200">
-                {cartItems.map((item, index) => (
+            {cartItems.map((item, index) => (
                   <li key={index} className="py-3 flex justify-between items-center">
-                    <span>{item.quantity} x {item.product.name}</span>
+                    <div className="flex items-center">
+                      <span className="mr-3">{item.product.name}</span>
+                      <div className="flex items-center">
+                        <button 
+                          onClick={() => handleUpdateQuantity(item.product.id, Math.max(0, item.quantity - 1))}
+                          className="px-2 py-1 bg-gray-200 rounded-l hover:bg-gray-300"
+                        >
+                          -
+                        </button>
+                        <span className="px-3 py-1 bg-gray-100">{item.quantity}</span>
+                        <button 
+                          onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
+                          className="px-2 py-1 bg-gray-200 rounded-r hover:bg-gray-300"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                     <span>${(item.product.price * item.quantity).toFixed(2)}</span>
                   </li>
                 ))}
