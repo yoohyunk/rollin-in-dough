@@ -1,95 +1,38 @@
 'use client';
 import React from 'react';
- 
+import Link from 'next/link';
 
 const LoginPage = () => {
     return (
-        <>
-
-        <div style={styles.container}>
-            <h1 style={styles.title}>🍪 Rollin' in Dough 🍪</h1>
-            <p style={styles.subtitle}>Welcome back! Please log in to continue.</p>
-            <form style={styles.form}>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#fbf6e9] px-4">
+            <h1 className="text-4xl font-bold text-[#fc3296] mb-4">🍪 Rollin' in Dough 🍪</h1>
+            <p className="text-lg text-gray-700 mb-8">Welcome back! Please log in to continue.</p>
+            <form className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md">
                 <input
                     type="text"
                     placeholder="Username"
-                    style={styles.input}
+                    className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc3296]"
                 />
                 <input
                     type="password"
                     placeholder="Password"
-                    style={styles.input}
+                    className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc3296]"
                 />
-                <button type="submit" style={styles.button}>
+                <button
+                    type="submit"
+                    className="w-full bg-[#fc3296] text-white py-2 rounded-md font-semibold hover:bg-[#e88b22] transition-colors duration-300"
+                >
                     Log In
                 </button>
             </form>
-            <p style={styles.footer}>
-                Don't have an account? <a href="/signup" style={styles.link}>Sign up here!</a>
+            <p className="mt-4 text-gray-600">
+                Don't have an account?{' '}
+                <Link href="/signup" className="text-[#fc3296] hover:underline">
+                    Sign up here!
+                </Link>
             </p>
         </div>
-       
-        </>
     );
-};
-
-const styles = {
-    container: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: 'bg-[#ffccff]',
-        fontFamily: 'Arial, sans-serif',
-    },
-    title: {
-        fontSize: '2.5rem',
-        color: '#ffccff',
-        marginBottom: '0.5rem',
-    },
-    subtitle: {
-        fontSize: '1.2rem',
-        color: '#ffccff',
-        marginBottom: '2rem',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: '300px',
-    },
-    input: {
-        width: '100%',
-        padding: '10px',
-        margin: '10px 0',
-        borderRadius: '5px',
-        border: '1px solid #ccc',
-        fontSize: '1rem',
-    },
-    button: {
-        width: '100%',
-        padding: '10px',
-        backgroundColor: '#008080',
-        color: '#black',
-        border: 'none',
-        borderRadius: '5px',
-        fontSize: '1rem',
-        cursor: 'pointer',
-    },
-    buttonHover: {
-        backgroundColor: '#a0522d',
-    },
-    footer: {
-        marginTop: '1rem',
-        fontSize: '0.9rem',
-        color: '#555',
-    },
-    link: {
-        color: '#008080',
-        textDecoration: 'none',
-    },
 };
 
 export default LoginPage;
