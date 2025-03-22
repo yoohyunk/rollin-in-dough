@@ -38,6 +38,7 @@ jobs:
         run: npm run lint
 
   bundle:
+    environment: pr
     runs-on: ubuntu-latest
     needs: setup
     steps:
