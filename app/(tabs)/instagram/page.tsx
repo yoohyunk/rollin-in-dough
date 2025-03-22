@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 
-const InstagramRedirectPage: any = () => {
+const InstagramRedirectPage = () => {
   useEffect(() => {
     window.location.href = "https://www.instagram.com/rollinindoughvernon/";
   }, []);
