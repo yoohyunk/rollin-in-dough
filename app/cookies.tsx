@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Image from "next/image";
 
 // Define the cookie product interface
 export interface CookieProduct {
@@ -41,18 +41,23 @@ export default function CookieCard({ product, onAddToCart }: CookieCardProps) {
           </div>
         )}
       </div>
-      
+
       <div className="p-4">
-        <h2 className="text-xl font-bold text-[#fc3296] mb-2">{product.name}</h2>
+        <h2 className="text-xl font-bold text-[#fc3296] mb-2">
+          {product.name}
+        </h2>
         <p className="text-gray-700 mb-3">{product.description}</p>
-        <p className="text-lg font-semibold text-[#fc3296] mb-3">${product.price.toFixed(2)}</p>
-        
+        <p className="text-lg font-semibold text-[#fc3296] mb-3">
+          ${product.price.toFixed(2)}
+        </p>
+
         {product.allergens && product.allergens.length > 0 && (
           <p className="text-sm text-red-500 mb-3">
-            <span className="font-bold">Allergens:</span> {product.allergens.join(', ')}
+            <span className="font-bold">Allergens:</span>{" "}
+            {product.allergens.join(", ")}
           </p>
         )}
-        
+
         <div className="flex items-center mt-4">
           <input
             type="number"
@@ -62,7 +67,7 @@ export default function CookieCard({ product, onAddToCart }: CookieCardProps) {
             onChange={(e) => setQuantity(Number(e.target.value))}
             className="w-16 border border-gray-300 rounded px-2 py-1 text-center"
           />
-          <button 
+          <button
             onClick={handleAddToCart}
             className="ml-auto bg-[#fc3296] text-white py-2 px-4 rounded hover:bg-[#e88b22] transition-colors duration-300"
           >
