@@ -1,3 +1,4 @@
+"use client";
 import SignInWithId from "./SignInWithId";
 
 export default function Page() {
