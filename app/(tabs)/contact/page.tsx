@@ -1,8 +1,60 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
+import emailjs from '@emailjs/browser';
 
 const ContactPage = () => {
-    return (
+  useEffect(() => {
+    // Initialize EmailJS once when component mounts
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
+    if (publicKey) {
+      emailjs.init(publicKey);
+    } else {
+      console.error("EmailJS public key is missing");
+    }
+  }, []);
+
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  
+  // Store a reference to the form element before async operations
+  const form = e.currentTarget;
+  
+  const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+  const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+  const publicKey = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
+  
+  // Validate env variables exist
+  if (!serviceId || !templateId || !publicKey) {
+    console.error("Missing EmailJS configuration:", { 
+      serviceId: !!serviceId, 
+      templateId: !!templateId, 
+      publicKey: !!publicKey 
+    });
+    alert('Email configuration error. Please contact the administrator.');
+    return;
+  }
+
+  try {
+    console.log("Sending email with EmailJS...");
+    const result = await emailjs.sendForm(
+      serviceId,
+      templateId,
+      form, // Use the stored reference instead of e.currentTarget
+      publicKey
+    );
+    
+    console.log("Email sent successfully:", result.text);
+    alert('Message sent successfully!');
+    form.reset(); // Use the stored reference
+  } catch (error: any) {
+    console.error('Error sending message:', error);
+    console.error('Error details:', error.text || error.message || 'Unknown error');
+    alert(`Failed to send message. ${error.text || error.message || 'Please try again later.'}`);
+  }
+};
+
+  return (
+
         <div className="container mx-auto px-4 py-8 mt-24 mb-16">
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
                 <h1 className="text-3xl font-bold text-center mb-6">Contact Us</h1>
@@ -11,7 +63,7 @@ const ContactPage = () => {
                     We'd love to hear from you! Please fill out the form below or reach out to us directly.
                 </p>
                 
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-2">
                         <label htmlFor="name" className="block font-medium">Name:</label>
                         <input 
