@@ -63,10 +63,20 @@ export const signInWithEmail = async (
       password
     );
     const user = userCredential.user;
-
     if (!user.emailVerified) {
       console.log("Email not verified. Please verify your email.");
       return user;
+    }
+
+    if (user) {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/set-cookie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token }),
+      });
+      const data = await response.json();
+      console.log(data);
     }
 
     const displayName = user.displayName || "";
@@ -77,9 +87,9 @@ export const signInWithEmail = async (
 
     const squareRes = await fetch("/api/create-customer", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         given_name,
@@ -117,9 +127,21 @@ export const signInWithGoogle = async (): Promise<User> => {
     const given_name = nameParts[0] || "";
     const family_name = nameParts.slice(1).join(" ") || "";
 
+    if (user) {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/set-cookie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token }),
+      });
+      const data = await response.json();
+      console.log(data);
+    }
+
     if (isNewUser) {
       const squareRes = await fetch("/api/create-customer", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

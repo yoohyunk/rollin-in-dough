@@ -1,8 +1,23 @@
 "use client";
 import Link from "next/link";
 import "./globals.css";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/firebase/firebaseConfig";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/auth");
+      }
+    });
+    return unsubscribe;
+  }, [router]);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#ffccff] text-[#000080] font-sans">
       <h1
