@@ -170,3 +170,12 @@ export const signInWithGoogle = async (): Promise<User> => {
     throw error;
   }
 };
+
+export const userSignOut = async () => {
+  if (auth.currentUser) {
+    auth.signOut();
+    await fetch("/api/set-cookie", {
+      method: "DELETE",
+    });
+  }
+};

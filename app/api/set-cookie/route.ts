@@ -38,3 +38,20 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function DELETE() {
+  const expiredCookie = serialize("token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    expires: new Date(0), // Expired
+    sameSite: "strict",
+    path: "/",
+  });
+
+  const response = NextResponse.json({
+    message: "Cookie deleted successfully",
+  });
+  response.headers.set("Set-Cookie", expiredCookie);
+
+  return response;
+}
