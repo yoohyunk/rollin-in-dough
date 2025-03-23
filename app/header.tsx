@@ -1,11 +1,31 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AuthModal from "@/components/AuthModal";
+import { userSignOut } from "@/firebase/auth";
+import { Button } from "@/components/ui/button";
+import { auth } from "@/firebase/firebaseConfig";
 
 export default function Header() {
   const headerHeight = "90px"; // Define the height of the header
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      auth.onAuthStateChanged((user) => {
+        console.log("User is signed in:", user);
+        setIsAuth(!!user);
+      });
+    };
+    check();
+  }, []);
+
+  const handleSignOut = async () => {
+    await userSignOut();
+    setIsAuth(false); // 🔑 update state to reflect logout
+  };
 
   return (
     <>
@@ -94,12 +114,11 @@ export default function Header() {
 
             {/* Right-aligned login button */}
             <div className="flex-1 flex justify-end">
-              <Link
-                href="/login"
-                className="bg-[#fc3296] text-white px-4 md:px-6 py-1 md:py-2 rounded-md hover:bg-[#e88b22] transition-colors duration-300 text-sm md:text-lg"
-              >
-                Login
-              </Link>
+              {isAuth ? (
+                <Button onClick={handleSignOut}>log out</Button>
+              ) : (
+                <AuthModal />
+              )}
             </div>
           </div>
 
