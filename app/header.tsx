@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import AuthModal from "@/components/AuthModal";
 
 export default function Header() {
   const headerHeight = "90px"; // Define the height of the header
@@ -94,12 +95,13 @@ export default function Header() {
 
             {/* Right-aligned login button */}
             <div className="flex-1 flex justify-end">
-              <Link
+              <AuthModal />
+              {/* <Link
                 href="/login"
                 className="bg-[#fc3296] text-white px-4 md:px-6 py-1 md:py-2 rounded-md hover:bg-[#e88b22] transition-colors duration-300 text-sm md:text-lg"
               >
                 Login
-              </Link>
+              </Link> */}
             </div>
           </div>
 
