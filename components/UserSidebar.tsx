@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Separator } from "@radix-ui/react-separator";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { PiUserBold } from "react-icons/pi";
 
 interface UserSidebarProps {
   onSignOut: () => void;
@@ -27,7 +28,12 @@ export default function UserSidebar({ onSignOut }: UserSidebarProps) {
 
   return (
     <Sheet open={open} onOpenChange={setopen}>
-      <SheetTrigger onClick={() => setopen(true)}>Account</SheetTrigger>
+      <SheetTrigger onClick={() => setopen(true)}>
+        <div className="flex items-center gap-1">
+          <PiUserBold />
+          <div className="hidden md:block font-semibold">Account</div>
+        </div>
+      </SheetTrigger>
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Account</SheetTitle>
