@@ -19,7 +19,6 @@ interface UserSidebarProps {
 
 export default function UserSidebar({ onSignOut }: UserSidebarProps) {
   const [open, setopen] = useState(false);
-
   const pathname = usePathname();
 
   useEffect(() => {

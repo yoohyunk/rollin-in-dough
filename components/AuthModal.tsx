@@ -26,14 +26,6 @@ export default function AuthModal() {
   const [error, setError] = useState<string | null>(null);
   const [currentForm, setCurrentForm] = useState<"login" | "signup">("login");
   const [open, setOpen] = useState(false);
-  // const searchParams = useSearchParams();
-
-  // useEffect(() => {
-  //   const isNotLogin = searchParams.get("isNotLogin");
-  //   if (isNotLogin === "true") {
-  //     setOpen(true);
-  //   }
-  // }, []);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -44,7 +36,7 @@ export default function AuthModal() {
       setOpen(true);
       const url = new URL(window.location.href);
       url.searchParams.delete("isNotLogin");
-      router.replace(url.pathname + url.search); // This removes the param
+      router.replace(url.pathname + url.search);
     }
   }, [searchParams, router]);
 

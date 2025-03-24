@@ -6,11 +6,13 @@ import AuthModal from "@/components/AuthModal";
 import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
 import UserSidebar from "@/components/UserSidebar";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const headerHeight = "90px"; // Define the height of the header
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const check = async () => {
@@ -24,7 +26,8 @@ export default function Header() {
 
   const handleSignOut = async () => {
     await userSignOut();
-    setIsAuth(false); // 🔑 update state to reflect logout
+    setIsAuth(false);
+    router.push("/");
   };
 
   return (
