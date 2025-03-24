@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
+import { PiUserBold } from "react-icons/pi";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -95,8 +96,11 @@ export default function AuthModal() {
   return (
     <div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-          <Button>Log in</Button>
+        <DialogTrigger className="font-semibold">
+          <div className="flex flex-row items-center gap-1">
+            <PiUserBold />
+            <div className="hidden md:block font-semibold">Log in</div>
+          </div>
         </DialogTrigger>
         {currentForm === "login" ? (
           <DialogContent>
