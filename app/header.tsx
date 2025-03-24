@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
@@ -117,7 +117,13 @@ export default function Header() {
 
           {/* Right-aligned login button */}
           <div className="flex-1 flex justify-end">
-            {isAuth ? <UserSidebar onSignOut={handleSignOut} /> : <AuthModal />}
+            {isAuth ? (
+              <UserSidebar onSignOut={handleSignOut} />
+            ) : (
+              <Suspense>
+                <AuthModal />
+              </Suspense>
+            )}
           </div>
         </div>
 
