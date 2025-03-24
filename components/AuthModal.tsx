@@ -9,11 +9,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { signInWithEmail, signUpWithEmail } from "@/firebase/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
+
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthModal() {
   const [email, setEmail] = useState("");
@@ -23,6 +25,28 @@ export default function AuthModal() {
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [currentForm, setCurrentForm] = useState<"login" | "signup">("login");
+  const [open, setOpen] = useState(false);
+  // const searchParams = useSearchParams();
+
+  // useEffect(() => {
+  //   const isNotLogin = searchParams.get("isNotLogin");
+  //   if (isNotLogin === "true") {
+  //     setOpen(true);
+  //   }
+  // }, []);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const isNotLogin = searchParams?.get("isNotLogin");
+    if (isNotLogin === "true") {
+      setOpen(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("isNotLogin");
+      router.replace(url.pathname + url.search); // This removes the param
+    }
+  }, []);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +102,7 @@ export default function AuthModal() {
 
   return (
     <div>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger>
           <Button>Log in</Button>
         </DialogTrigger>
