@@ -46,7 +46,7 @@ export default function AuthModal() {
       url.searchParams.delete("isNotLogin");
       router.replace(url.pathname + url.search); // This removes the param
     }
-  }, []);
+  }, [searchParams, router]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
