@@ -101,7 +101,7 @@ export default function MenuPage() {
           <h1 className="text-4xl font-bold text-center mb-8">Cookies</h1>
 
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Cart section - takes 1/3 of the width on large screens */}
+            {/* Cart section */}
             <div
               className={`lg:w-1/3 ${cartItems.length === 0 ? "lg:hidden" : ""}`}
             >

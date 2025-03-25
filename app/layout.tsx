@@ -32,7 +32,7 @@ export default function RootLayout({
           backgroundImage: "url('/pink.png')",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          backgroundSize: "cover", // Changed from "fill" to "cover"
+          backgroundSize: "cover", 
           backgroundAttachment: "fixed",
         }}
       >
