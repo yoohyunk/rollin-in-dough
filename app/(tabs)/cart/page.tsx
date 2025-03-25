@@ -164,13 +164,12 @@ const CartPage: React.FC = () => {
                         <div>
                           <h2 className="text-lg font-semibold">{item.name}</h2>
                           <div className="flex items-center mt-2 space-x-2">
-                          
                             <button
-                              onClick={() => handleUpdateQuantity(item.id, 0)} 
-                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">
+                              onClick={() => handleUpdateQuantity(item.id, 0)}
+                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                            >
                               ✕
                             </button>
-                        
                             <button
                               onClick={() =>
                                 handleUpdateQuantity(
@@ -178,18 +177,19 @@ const CartPage: React.FC = () => {
                                   Math.max(0, item.quantity - 1)
                                 )
                               }
-                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">
+                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                            >
                               -
                             </button>
                             <span className="text-gray-700">
                               {item.quantity}
                             </span>
-                       
                             <button
                               onClick={() =>
                                 handleUpdateQuantity(item.id, item.quantity + 1)
                               }
-                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">
+                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                            >
                               +
                             </button>
                           </div>
