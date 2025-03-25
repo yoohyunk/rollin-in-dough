@@ -164,6 +164,7 @@ const CartPage: React.FC = () => {
                         <div>
                           <h2 className="text-lg font-semibold">{item.name}</h2>
                           <div className="flex items-center mt-2 space-x-2">
+
                             {/* Delete Button */}
                             <button
                               onClick={() => handleUpdateQuantity(item.id, 0)} // Deletes the item
