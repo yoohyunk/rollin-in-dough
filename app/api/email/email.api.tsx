@@ -11,7 +11,8 @@ export default async function handler(
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    try {//try to post info
+    try {
+      //try to post info
       const response = await fetch(
         //api end point
         "https://api.emailjs.com/api/v1.0/email/send",
