@@ -141,10 +141,7 @@ export default function Header() {
                     )}
                 </div>
             </Link>
-
-            {/* Main content area */}
-            <div style={{ paddingTop: headerHeight }}>
-                {/* Your page content goes here */}
+            <div style={{ paddingTop: headerHeight }}>    
             </div>
         </>
     );
