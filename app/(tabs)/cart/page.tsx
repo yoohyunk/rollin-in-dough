@@ -1,13 +1,13 @@
-'use client';
-import React, { useState } from 'react';
-import Image from 'next/image';
- 
+"use client";
+import React, { useState } from "react";
+import Image from "next/image";
+
 interface Cookie {
-    id: number;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
 }
 
 interface PastOrder {
@@ -49,9 +49,11 @@ const CartPage: React.FC = () => {
         }
     ]);
 
-    const calculateTotal = () => {
-        return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
-    };
+  const calculateTotal = () => {
+    return cartItems
+      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .toFixed(2);
+  };
 
     // Function to handle quantity updates
     const handleUpdateQuantity = (itemId: number, newQuantity: number) => {

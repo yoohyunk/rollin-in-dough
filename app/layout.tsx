@@ -27,12 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased text-[#fc3296]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased text-[#fc3296] min-h-screen`}
         style={{
           backgroundImage: "url('/pink.png')",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          backgroundSize: "cover",
+          backgroundSize: "fill",
           backgroundAttachment: "fixed",
         }}
       >
