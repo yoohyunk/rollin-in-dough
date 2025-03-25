@@ -19,7 +19,7 @@ interface PastOrder {
 }
 
 const CartPage: React.FC = () => {
-  // Convert to state so we can update it
+  // mock data
   const [cartItems, setCartItems] = useState<Cookie[]>([
     {
       id: 1,
@@ -112,6 +112,7 @@ const CartPage: React.FC = () => {
       );
     }
   };
+  //checkout button function
   const handleCheckout = () => {
     const newOrder: PastOrder = {
       id: `ORD-${Date.now()}`, // Unique ID based on timestamp

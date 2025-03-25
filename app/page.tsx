@@ -74,10 +74,11 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-center gap-12">
               <div className="md:w-1/2">
                 <Image
-                  src="/baker-mom.jpg"
-                  alt="Baker mom"
-                  fill
-                  className="rounded-lg shadow-xl"
+                  src="/aboutMe.png"
+                  alt="Baker Family"
+                  width={800} // Adjust width here
+                  height={600} // Adjust height here
+                  className="rounded-lg shadow-xl object-cover"
                 />
               </div>
               <div className="md:w-1/2">
@@ -169,7 +170,7 @@ export default function Home() {
                   &quot;These cookies are the highlight of my week! Absolutely
                   divine and worth every calorie!&quot;
                 </p>
-                <p className="font-semibold">- Sarah Johnson</p>
+                <p className="font-semibold">- Taylor Swift</p>
               </div>
               <div className="bg-[#fbf6e9] p-6 rounded-lg shadow">
                 <div className="flex items-center mb-4">
@@ -181,9 +182,9 @@ export default function Home() {
                 </div>
                 <p className="mb-4 italic">
                   &quot;I ordered cookies for my daughter&apos;s birthday and
-                  they were a huge hit! Will definitely order again.&quot;
+                  they were a huge hit! I think she almost looked at me.&quot;
                 </p>
-                <p className="font-semibold">- Michael Rodriguez</p>
+                <p className="font-semibold">- The POTUS</p>
               </div>
               <div className="bg-[#fbf6e9] p-6 rounded-lg shadow">
                 <div className="flex items-center mb-4">
@@ -194,10 +195,11 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="mb-4 italic">
-                  &quot;The Nutella croissants are absolutely to die for! I
-                  can&apos;t get enough of these treats!&quot;
+                  &quot;The Nutella croissants are absolutely to kill for! I
+                  can&apos;t get enough of these treats! Don&apos:t tell
+                  T&apos;Challa&quot;
                 </p>
-                <p className="font-semibold">- Emily Thompson</p>
+                <p className="font-semibold">- Michael B Jordan (killmonger)</p>
               </div>
             </div>
           </div>
