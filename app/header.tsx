@@ -35,7 +35,7 @@ export default function Header() {
       {/* Header */}
       <div
         className="fixed top-0 left-0 w-full bg-white py-4 px-2 md:px-8 z-50"
-        style={{ height: "100px" }}
+        style={{ height: "90px" }}
       >
         {/* Main header container */}
         <div className="flex justify-between items-center h-full relative">

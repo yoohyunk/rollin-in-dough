@@ -112,7 +112,7 @@ const CartPage: React.FC = () => {
       );
     }
   };
-    const handleCheckout = () => {
+  const handleCheckout = () => {
     const newOrder: PastOrder = {
       id: `ORD-${Date.now()}`, // Unique ID based on timestamp
       date: new Date().toISOString(),
@@ -120,15 +120,12 @@ const CartPage: React.FC = () => {
       status: "Processing",
       items: [...cartItems], // Copy current cart items
     };
-  
     // Add the new order to pastOrders
     setPastOrders((prevOrders) => [...prevOrders, newOrder]);
-  
     // Clear the cart
     setCartItems([]);
     alert("Order placed successfully!");
   };
-
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   const toggleOrderDetails = (orderId: string) => {
@@ -206,8 +203,7 @@ const CartPage: React.FC = () => {
                     <h2 className="text-xl font-bold">Total:</h2>
                     <p className="text-xl font-bold">${calculateTotal()}</p>
                   </div>
-
-                                    <button
+                  <button
                     className="mt-6 w-full bg-[#fc3296] text-white py-3 px-6 rounded-md hover:bg-[#fbdb8a] hover:text-[#fc3296] transition-colors duration-300 font-medium"
                     onClick={handleCheckout}
                   >
