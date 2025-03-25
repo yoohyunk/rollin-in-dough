@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-            <body
+      <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased text-[#fc3296] min-h-screen`}
         style={{
           backgroundImage: "url('/pink.png')",
@@ -36,7 +36,6 @@ export default function RootLayout({
           backgroundAttachment: "fixed",
         }}
       >
-      
         <Header />
         <main>{children}</main>
         <Footer />
