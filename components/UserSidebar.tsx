@@ -37,10 +37,10 @@ export default function UserSidebar({ onSignOut }: UserSidebarProps) {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Account</SheetTitle>
-          <SheetDescription>
-            Hi,
+            <SheetDescription>
+            Hi{" "}
             {auth.currentUser?.displayName}
-          </SheetDescription>
+            </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-2 text-center w-full">
           <Separator className="border-t border-gray-200" />
