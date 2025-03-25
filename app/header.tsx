@@ -7,10 +7,10 @@ import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
 import UserSidebar from "@/components/UserSidebar";
 import { useRouter } from "next/navigation";
-import { PiShoppingCart } from "react-icons/pi";
+
 
 export default function Header() {
-  const headerHeight = "90px"; // Define the height of the header
+  const headerHeight = "60px"; 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
   const router = useRouter();
@@ -35,8 +35,8 @@ export default function Header() {
     <>
       {/* Header */}
 
-      <div className="fixed top-0 left-0 w-full bg-white py-2 px-2 md:px-8 z-50 ">
-        {/* Main header container */}
+      <div className="fixed top-0 left-0 w-full bg-white py-4 px-2 md:px-8 z-50" style={{ height: "100px" }}>
+      {/* Main header container */}
         <div className="flex justify-between items-center h-full relative">
           {/* Hamburger menu button - only visible on mobile */}
           <button
@@ -57,21 +57,43 @@ export default function Header() {
             ></span>
           </button>
 
-          {/* Desktop navigation - hidden on mobile */}
-          <nav className="hidden md:flex flex-1">
-            <ul className="flex gap-4 ml-1 font-semibold">
-              <li>
-                <Link href="/shop">Shop</Link>
-              </li>
-              <li>
-                <Link href="/about">About</Link>
-              </li>
-
-              <li>
-                <Link href="/contact">Contact</Link>
-              </li>
-            </ul>
-          </nav>
+                                 {/* Desktop navigation - hidden on mobile */}
+                        <nav className="hidden md:flex flex-1">
+                            <ul className="flex space-x-2 lg:space-x-6 ml-1">
+                                <li>
+                                    <Link
+                                        href="/shop"
+                                        className="nav-link px-3 lg:px-6 py-2 lg:py-3 text-base lg:text-lg border-2 border-[#fc3296] text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                                    >
+                                        Shop
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href="/cart"
+                                        className="nav-link px-3 lg:px-6 py-2 lg:py-3 text-base lg:text-lg border-2 border-[#fc3296] text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                                    >
+                                        Cart
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href="/instagram"
+                                        className="nav-link px-3 lg:px-6 py-2 lg:py-3 text-base lg:text-lg border-2 border-[#fc3296] text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                                    >
+                                        Instagram
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href="/contact"
+                                        className="nav-link px-3 lg:px-6 py-2 lg:py-3 text-base lg:text-lg border-2 border-[#fc3296] text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                                    >
+                                        Contact
+                                    </Link>
+                                </li>
+                            </ul>
+                        </nav>
 
                         {/* Centered logo and title */}
                         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
@@ -142,7 +164,6 @@ export default function Header() {
       <div style={{ paddingTop: headerHeight }}>
         {/* Your page content goes here */}
       </div>
-    </>
   );
                     {/* Mobile menu - only visible when open on mobile */}
                     {mobileMenuOpen && (
@@ -187,9 +208,9 @@ export default function Header() {
                             </ul>
                         </div>
                     )}
-                </div>
-            </Link>
-            <div style={{ paddingTop: headerHeight }}>    
+                
+               
+                <div style={{ paddingTop: headerHeight }}>   
             </div>
         </>
     );
