@@ -164,14 +164,14 @@ const CartPage: React.FC = () => {
                         <div>
                           <h2 className="text-lg font-semibold">{item.name}</h2>
                           <div className="flex items-center mt-2 space-x-2">
-                            {/* Delete Button */}
+                          {/* Delete Button */}
                             <button
                               onClick={() => handleUpdateQuantity(item.id, 0)} // Deletes the item
                               className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
                             >
                               ✕
                             </button>
-                            {/* Minus Button */}
+                          {/* Minus Button */}
                             <button
                               onClick={() =>
                                 handleUpdateQuantity(
@@ -186,7 +186,7 @@ const CartPage: React.FC = () => {
                             <span className="text-gray-700">
                               {item.quantity}
                             </span>
-                            {/* Plus Button */}
+                          {/* Plus Button */}
                             <button
                               onClick={() =>
                                 handleUpdateQuantity(item.id, item.quantity + 1)
