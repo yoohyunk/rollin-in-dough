@@ -241,7 +241,7 @@ export default function AuthModal() {
                       setPasswordConfirm("");
                     }}
                     className="px-4 py-2 text-[#fc3296] border border-[#fc3296] rounded hover:bg-[#fc3296] hover:text-white transition-all"
-                    >
+                  >
                     Sign in
                   </button>
                 </div>

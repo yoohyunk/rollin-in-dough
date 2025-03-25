@@ -277,7 +277,9 @@ const CartPage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-8 bg-white rounded-lg shadow-md">
-                <p className="text-gray-500">You don&apos;t have any past orders</p>
+                <p className="text-gray-500">
+                  You don&apos;t have any past orders
+                </p>
               </div>
             )}
           </div>

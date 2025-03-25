@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import {Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
@@ -34,7 +34,7 @@ export default function Header() {
   return (
     <>
       {/* Header */}
-      < div
+      <div
         className="fixed top-0 left-0 w-full bg-white py-4 px-2 md:px-8 z-50"
         style={{ height: "100px" }}
       >
@@ -115,8 +115,8 @@ export default function Header() {
             </Link>
           </div>
 
-           {/* Right-aligned login button */}
-           <div className="flex-1 flex justify-end items-center gap-4 ">                    
+          {/* Right-aligned login button */}
+          <div className="flex-1 flex justify-end items-center gap-4 ">
             {isAuth ? (
               <UserSidebar onSignOut={handleSignOut} />
             ) : (
@@ -125,11 +125,8 @@ export default function Header() {
               </Suspense>
             )}
           </div>
-          </div>
+        </div>
 
-        
-    
-      
         {/* Mobile menu - only visible when open on mobile */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute left-0 w-full bg-white shadow-lg z-40 py-4 px-6 mt-2">
@@ -144,14 +141,14 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-              <Link
-                href="/cart"
-                className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Cart
-              </Link>
-            </li>
+                <Link
+                  href="/cart"
+                  className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Cart
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/contact"
@@ -160,7 +157,7 @@ export default function Header() {
                 >
                   Contact
                 </Link>
-              </li> 
+              </li>
               <li>
                 <Link
                   href="/about"
