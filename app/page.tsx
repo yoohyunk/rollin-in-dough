@@ -74,10 +74,11 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-center gap-12">
               <div className="md:w-1/2">
                 <Image
-                  src="/baker-mom.jpg"
-                  alt="Baker mom"
-                  fill
-                  className="rounded-lg shadow-xl"
+                  src="/aboutMe.png"
+                  alt="Baker Family"
+                  width={800} // Adjust width here
+                  height={600} // Adjust height here
+                  className="rounded-lg shadow-xl object-cover"
                 />
               </div>
               <div className="md:w-1/2">
