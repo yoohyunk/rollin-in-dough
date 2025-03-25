@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import {Suspense, useEffect, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
 import UserSidebar from "@/components/UserSidebar";
 import { useRouter } from "next/navigation";
+import { PiShoppingCart } from "react-icons/pi";
 
 export default function Header() {
   const headerHeight = "60px";
@@ -33,7 +34,7 @@ export default function Header() {
   return (
     <>
       {/* Header */}
-      <div
+      < div
         className="fixed top-0 left-0 w-full bg-white py-4 px-2 md:px-8 z-50"
         style={{ height: "100px" }}
       >
@@ -114,17 +115,21 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Right-aligned login button */}
-          <div className="flex-1 flex justify-end">
-            <Link
-              href="/login"
-              className="bg-[#fc3296] text-white px-4 md:px-6 py-1 md:py-2 rounded-md hover:bg-[#e88b22] transition-colors duration-300 text-sm md:text-lg"
-            >
-              Login
-            </Link>
+           {/* Right-aligned login button */}
+           <div className="flex-1 flex justify-end items-center gap-4 ">                    
+            {isAuth ? (
+              <UserSidebar onSignOut={handleSignOut} />
+            ) : (
+              <Suspense>
+                <AuthModal />
+              </Suspense>
+            )}
           </div>
-        </div>
+          </div>
 
+        
+    
+      
         {/* Mobile menu - only visible when open on mobile */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute left-0 w-full bg-white shadow-lg z-40 py-4 px-6 mt-2">
@@ -139,47 +144,6 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/about"
-                  className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  href="/contact"
-                  className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
-      {/* Main content area */}
-      <div style={{ paddingTop: headerHeight }}>
-        {/* Your page content goes here */}
-      </div>
-      );
-      {/* Mobile menu - only visible when open on mobile */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute left-0 w-full bg-white shadow-lg z-40 py-4 px-6 mt-2">
-          <ul className="flex flex-col space-y-4">
-            <li>
-              <Link
-                href="/shop"
-                className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Shop
-              </Link>
-            </li>
-            <li>
               <Link
                 href="/cart"
                 className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
@@ -188,28 +152,33 @@ export default function Header() {
                 Cart
               </Link>
             </li>
-            <li>
-              <Link
-                href="/instagram"
-                className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Instagram
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-      )}
-      <div style={{ paddingTop: headerHeight }}></div>
+              <li>
+                <Link
+                  href="/contact"
+                  className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+              </li> 
+              <li>
+                <Link
+                  href="/about"
+                  className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </li>
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Main content area */}
+      <div style={{ paddingTop: headerHeight }}>
+        {/* Your page content goes here */}
+      </div>
     </>
   );
 }
