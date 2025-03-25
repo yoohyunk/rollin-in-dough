@@ -18,7 +18,7 @@ interface PastOrder {
 }
 
 export default function OrdersPage() {
-  const [pastOrders, setPastOrders] = useState<PastOrder[]>([
+  const [pastOrders] = useState<PastOrder[]>([
     {
       id: "ORD-2023-001",
       date: "2023-03-10",
