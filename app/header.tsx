@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AuthModal from "@/components/AuthModal";
 import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";

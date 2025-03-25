@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import Image from "next/image";
 
 export default function AboutPage() {
@@ -25,7 +24,7 @@ export default function AboutPage() {
             </p>
             <p className="text-lg mb-6 leading-relaxed">
               Balancing motherhood with a side hustle, she infuses each creation
-              with passion and a sprinkle of real-life charm. Her treats aren't
+              with passion and a sprinkle of real-life charm. Her treats aren&apos;t
               just baked goods—they&apos;re edible joy, perfect for any
               occasion.
             </p>
