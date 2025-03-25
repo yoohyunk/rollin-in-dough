@@ -7,7 +7,6 @@ import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
 import UserSidebar from "@/components/UserSidebar";
 import { useRouter } from "next/navigation";
-import { PiShoppingCart } from "react-icons/pi";
 
 export default function Header() {
   const headerHeight = "60px";
