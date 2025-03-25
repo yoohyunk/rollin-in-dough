@@ -38,8 +38,7 @@ export default function UserSidebar({ onSignOut }: UserSidebarProps) {
         <SheetHeader>
           <SheetTitle>Account</SheetTitle>
           <SheetDescription>
-            Hi,
-            {auth.currentUser?.displayName}
+            Hi {auth.currentUser?.displayName}
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-2 text-center w-full">

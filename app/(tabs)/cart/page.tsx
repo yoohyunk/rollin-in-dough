@@ -165,6 +165,12 @@ const CartPage: React.FC = () => {
                           <h2 className="text-lg font-semibold">{item.name}</h2>
                           <div className="flex items-center mt-2 space-x-2">
                             <button
+                              onClick={() => handleUpdateQuantity(item.id, 0)}
+                              className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                            >
+                              ✕
+                            </button>
+                            <button
                               onClick={() =>
                                 handleUpdateQuantity(
                                   item.id,
