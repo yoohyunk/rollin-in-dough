@@ -100,11 +100,11 @@ export default function Header() {
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
             <Link href="/">
               <Image
-              src="/rollin-in-dough.jpg"
-              alt="Rollin in Dough Logo"
-              width={60}
-              height={60}
-              className="mr-2 md:mr-4 md:w-[80px] md:h-[80px]"
+                src="/rollin-in-dough.jpg"
+                alt="Rollin in Dough Logo"
+                width={60}
+                height={60}
+                className="mr-2 md:mr-4 md:w-[80px] md:h-[80px]"
               />
             </Link>
             <Link
