@@ -98,6 +98,7 @@ export default function Header() {
 
           {/* Centered logo and title */}
           <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
+          <Link href="/">
             <Image
               src="/rollin-in-dough.jpg"
               alt="Rollin in Dough Logo"
@@ -105,6 +106,7 @@ export default function Header() {
               height={60}
               className="mr-2 md:mr-4 md:w-[80px] md:h-[80px]"
             />
+          </Link>
             <Link
               href="/"
               className="text-2xl md:text-4xl text-[#fc3296] font-bold font-sans"
