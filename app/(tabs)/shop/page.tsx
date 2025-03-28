@@ -2,23 +2,6 @@
 import React, { useState, useEffect } from "react";
 import CookieCard, { CookieProduct } from "../../cookies";
 
-interface CatalogItem {
-  id: string;
-  itemData: {
-    name: string;
-    description: string;
-    imageIds: string[];
-    variations: {
-      itemVariationData?: {
-        priceMoney?: {
-          amount: number;
-          currency: string;
-        };
-      };
-    }[];
-  };
-}
-
 export default function MenuPage() {
   const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -32,57 +15,7 @@ export default function MenuPage() {
         });
         const data = await res.json();
         console.log("Catalog response in shop:", data);
-
-        const items = data.filter(
-          (obj: { type: string }) => obj.type === "ITEM"
-        );
-        const images = data.filter(
-          (obj: { type: string }) => obj.type === "IMAGE"
-        );
-        const imageDict = images.reduce(
-          (
-            acc: Record<string, string>,
-            image: { id: string; imageData: { url: string } | null }
-          ) => {
-            if (image.imageData && image.imageData.url) {
-              acc[image.id] = image.imageData.url;
-            }
-            return acc;
-          },
-          {} as Record<string, string>
-        );
-
-        const mappedItems: CookieProduct[] = items.map((item: CatalogItem) => {
-          const name = item.itemData?.name || "";
-          const description = item.itemData?.description || "";
-          const imageIDs: string[] = item.itemData?.imageIds || [];
-          const imageUrl =
-            imageIDs.length > 0 ? imageDict[imageIDs[0]] || "" : "";
-          let price = 0;
-
-          if (
-            item.itemData?.variations &&
-            Array.isArray(item.itemData.variations) &&
-            item.itemData.variations.length > 0
-          ) {
-            const variation = item.itemData.variations[0];
-            if (
-              variation.itemVariationData &&
-              variation.itemVariationData.priceMoney
-            ) {
-              price = variation.itemVariationData.priceMoney.amount;
-            }
-          }
-          return {
-            id: item.id,
-            name,
-            description,
-            imageUrl,
-            price,
-          };
-        });
-
-        setCookieProducts(mappedItems);
+        setCookieProducts(data);
       } catch (error) {
         console.error("Error fetching catalog items:", error);
       } finally {

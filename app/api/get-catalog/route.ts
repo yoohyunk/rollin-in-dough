@@ -1,5 +1,25 @@
+import { CookieProduct } from "@/app/cookies";
 import { NextRequest, NextResponse } from "next/server";
 import { SquareClient, SquareEnvironment, SquareError } from "square";
+
+interface CatalogItem {
+  id: string;
+  type: string;
+  imageData?: { url: string };
+  itemData?: {
+    name: string;
+    description: string;
+    imageIds: string[];
+    variations: {
+      itemVariationData?: {
+        priceMoney?: {
+          amount: number;
+          currency: string;
+        };
+      };
+    }[];
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,10 +31,10 @@ export async function GET(request: NextRequest) {
       environment: SquareEnvironment.Sandbox,
     });
 
-    const objects = await Client.catalog.list({
+    const objects = (await Client.catalog.list({
       types: "ITEM,IMAGE,ITEM_VARIATION",
       cursor,
-    });
+    })) as { data: CatalogItem[] };
 
     // console.log("Catalog response:", objects.response.objects);
     // console.log(
@@ -25,11 +45,59 @@ export async function GET(request: NextRequest) {
     const replacer = (key: string, value: unknown): unknown =>
       typeof value === "bigint" ? value.toString() : value;
 
-    const serializedData = JSON.stringify(objects.data, replacer);
-    // console.log("Serialized data:", serializedData);
+    const items = objects.data.filter(
+      (obj: { id: string; type?: string }) => obj.type === "ITEM"
+    );
+    const images = objects.data.filter(
+      (obj: { id: string; type?: string }) => obj.type === "IMAGE"
+    );
+    const imageDict = images.reduce(
+      (
+        acc: Record<string, string>,
+        image: { id: string; type: string; imageData?: { url: string } }
+      ) => {
+        if (image.imageData && image.imageData.url) {
+          acc[image.id] = image.imageData.url;
+        }
+        return acc;
+      },
+      {} as Record<string, string>
+    );
 
-    return new NextResponse(serializedData, {
-      headers: { "Content-Type": "application/json" },
+    const mappedItems: CookieProduct[] = items.map((item: CatalogItem) => {
+      const name = item.itemData?.name || "";
+      const description = item.itemData?.description || "";
+      const imageIDs: string[] = item.itemData?.imageIds || [];
+      const imageUrl = imageIDs.length > 0 ? imageDict[imageIDs[0]] || "" : "";
+      let price = 0;
+
+      if (
+        item.itemData?.variations &&
+        Array.isArray(item.itemData.variations) &&
+        item.itemData.variations.length > 0
+      ) {
+        const variation = item.itemData.variations[0];
+        if (
+          variation.itemVariationData &&
+          variation.itemVariationData.priceMoney
+        ) {
+          price = variation.itemVariationData.priceMoney.amount;
+        }
+      }
+      return {
+        id: item.id,
+        name,
+        description,
+        imageUrl,
+        price,
+      };
+    });
+
+    return new NextResponse(JSON.stringify(mappedItems, replacer), {
+      headers: {
+        "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     if (error instanceof SquareError) {
