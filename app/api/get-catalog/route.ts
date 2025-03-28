@@ -36,12 +36,6 @@ export async function GET(request: NextRequest) {
       cursor,
     })) as { data: CatalogItem[] };
 
-    // console.log("Catalog response:", objects.response.objects);
-    // console.log(
-    //   "Catalog response:",
-    //   objects.data[0].itemData.variations[0].itemVariationData
-    // );
-
     const replacer = (key: string, value: unknown): unknown =>
       typeof value === "bigint" ? value.toString() : value;
 
