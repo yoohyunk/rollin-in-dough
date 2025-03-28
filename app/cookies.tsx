@@ -48,7 +48,7 @@ export default function CookieCard({ product, onAddToCart }: CookieCardProps) {
         </h2>
         <p className="text-gray-700 mb-3">{product.description}</p>
         <p className="text-lg font-semibold text-[#fc3296] mb-3">
-          ${product.price.toFixed(2)}
+          ${product.price}
         </p>
 
         {product.allergens && product.allergens.length > 0 && (
