@@ -10,6 +10,12 @@ const Footer: React.FC = () => {
         <div className="flex flex-col items-center justify-center space-y-4">
           {/* Links stacked vertically */}
           <Link
+            href="/instagram"
+            className="text-sm md:text-base text-center hover:text-[#e88b22]  transition-colors"
+          >
+            Instagram
+          </Link>
+          <Link
             href="/about"
             className="text-sm md:text-base text-center hover:text-[#e88b22]  transition-colors"
           >
