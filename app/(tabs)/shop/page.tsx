@@ -1,94 +1,67 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CookieCard, { CookieProduct } from "../../cookies";
 
-interface CartItem {
-  product: CookieProduct;
-  quantity: number;
-}
-
 export default function MenuPage() {
-  // Mocked cookie products
-  const mockedCookieProducts: CookieProduct[] = [
-    {
-      id: "1",
-      name: "Chocolate Chip Cookie",
-      price: 2.5,
-      description:
-        "A classic cookie with gooey chocolate chips. Why mess with a classic",
-      imageUrl: "/chocolate-chip.png",
-      ingredients: ["Flour", "Sugar", "Chocolate Chips", "Butter"],
-      allergens: ["Gluten", "Dairy"],
-    },
-    {
-      id: "2",
-      name: "Sugar Cookie",
-      price: 2.0,
-      description:
-        "Let’s add a little whimsy! Have you ever had a frosted Animal Cracker? This is simple & classic— vanilla cookie, vanilla frosting, with a little colourful fun!",
-      imageUrl: "/sugar-cookie.png",
-      ingredients: ["Oats", "Raisins", "Brown Sugar", "Butter"],
-      allergens: ["Gluten", "Dairy"],
-    },
-    {
-      id: "3",
-      name: "Nutella loaded coissant",
-      price: 2.8,
-      description:
-        "Loaded Nutella cookie wrapped in a croissant, and finished off with a chocolate-hazelnut ganache, Bueno pieces, and toffee bits. Get ready to be chocolate wasted!",
-      imageUrl: "/nutella-croissant.png",
-      ingredients: ["Peanut Butter", "Sugar", "Eggs"],
-      allergens: ["Peanuts"],
-    },
-  ];
+  const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // State for cookie products
-  const [cookieProducts] = useState<CookieProduct[]>(mockedCookieProducts);
+  useEffect(() => {
+    const fetchCatalogItems = async () => {
+      try {
+        const res = await fetch("/api/get-catalog", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        console.log("Catalog response in shop:", data);
+        setCookieProducts(data);
+      } catch (error) {
+        console.error("Error fetching catalog items:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // State for cart
+    fetchCatalogItems();
+  }, []);
+
+  interface CartItem {
+    product: CookieProduct;
+    quantity: number;
+  }
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Add to cart function
   const handleAddToCart = (product: CookieProduct, quantity: number) => {
-    const existingItemIndex = cartItems.findIndex(
+    const existingIndex = cartItems.findIndex(
       (item) => item.product.id === product.id
     );
-
-    if (existingItemIndex >= 0) {
+    if (existingIndex >= 0) {
       const updatedCart = [...cartItems];
-      updatedCart[existingItemIndex].quantity += quantity;
+      updatedCart[existingIndex].quantity += quantity;
       setCartItems(updatedCart);
     } else {
       setCartItems([...cartItems, { product, quantity }]);
     }
-
-    //alert(`${quantity} ${product.name}(s) added to cart!`); alert for database debugging
   };
 
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
-    // Find the item
-    const existingItemIndex = cartItems.findIndex(
+    const existingIndex = cartItems.findIndex(
       (item) => item.product.id === productId
     );
-
-    if (existingItemIndex >= 0) {
-      // If quantity is set to 0, confirm deletion
+    if (existingIndex >= 0) {
       if (newQuantity === 0) {
         const confirmed = window.confirm(
           "Are you sure you want to remove this item from your cart?"
         );
-
         if (confirmed) {
-          // Remove the item from cart
-          const updatedCart = cartItems.filter(
-            (item) => item.product.id !== productId
+          setCartItems(
+            cartItems.filter((item) => item.product.id !== productId)
           );
-          setCartItems(updatedCart);
         }
       } else {
-        // Update quantity
         const updatedCart = [...cartItems];
-        updatedCart[existingItemIndex].quantity = newQuantity;
+        updatedCart[existingIndex].quantity = newQuantity;
         setCartItems(updatedCart);
       }
     }
@@ -99,7 +72,7 @@ export default function MenuPage() {
       <main className="min-h-screen py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-center mb-8">Cookies</h1>
-
+          {isLoading && <p>Loading...</p>}
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Cart section */}
             <div
@@ -172,16 +145,9 @@ export default function MenuPage() {
                 </div>
               )}
             </div>
-
             {/* Cookie grid section */}
             <div className={`${cartItems.length > 0 ? "lg:w-2/3" : "w-full"}`}>
-              <div
-                className={`grid gap-8 ${
-                  cartItems.length > 0
-                    ? "grid-cols-1 md:grid-cols-2" // 2 columns when cart is visible
-                    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" // 3 columns when cart is hidden
-                }`}
-              >
+              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {cookieProducts.map((product) => (
                   <CookieCard
                     key={product.id}
