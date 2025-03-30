@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   addDoc,
   collection,
@@ -8,7 +7,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { db } from "./firebaseConfig";
+import { db } from "@/firebase/firebaseConfig";
 
 interface CartItem {
   productId: string;
@@ -111,7 +110,7 @@ const updateCartItemQuantity = async (
 };
 
 // Ssync
-export const syncLocalCartWithFirestore = async (
+ const syncLocalCartWithFirestore = async (
   userId: string,
   localItems: CartItem[]
 ): Promise<CartItem[]> => {

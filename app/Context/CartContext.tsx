@@ -6,7 +6,7 @@ import {
   deleteItemFromCart,
   clearCart,
   syncLocalCartWithFirestore,
-} from "../firebase/cart";
+} from "@/firebase/cart";
 import {
   collection,
   query,
@@ -14,7 +14,7 @@ import {
   getDocs,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { db } from "@/firebase/firebaseConfig";
 
 interface CartItem {
   productId: string;
