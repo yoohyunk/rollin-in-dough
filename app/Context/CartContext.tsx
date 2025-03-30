@@ -1,11 +1,23 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
-import { addItemToCart, getAllItemsFromCart, deleteItemFromCart, clearCart, syncLocalCartWithFirestore } from "../firebase/cart";
-import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig"; 
+import {
+  addItemToCart,
+  getAllItemsFromCart,
+  deleteItemFromCart,
+  clearCart,
+  syncLocalCartWithFirestore,
+} from "../firebase/cart";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig";
 
 interface CartItem {
-  productId: string; 
+  productId: string;
   name: string;
   quantity: number;
   price: number;
@@ -34,8 +46,8 @@ const CartContext = createContext<CartContextType>({
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [userId, setUserId] = useState<string | null>(null); 
-  const [isLoading, setIsLoading] = useState(false); 
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load cart data from Firestore if loged in if not local storage
   useEffect(() => {
@@ -66,8 +78,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Add
   const addToCart = (item: CartItem) => {
     setCartItems((prev) => {
-      const existingItemIndex = prev.findIndex((i) => i.productId === item.productId);
-      
+      const existingItemIndex = prev.findIndex(
+        (i) => i.productId === item.productId
+      );
+
       if (existingItemIndex >= 0) {
         const newCart = [...prev];
         newCart[existingItemIndex] = {
@@ -81,13 +95,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (userId) {
-      addItemToCart(userId, item); 
+      addItemToCart(userId, item);
     }
   };
 
   // Update
   const updateQuantity = async (productId: string, newQuantity: number) => {
-    if (newQuantity <= 0) return removeItem(productId); 
+    if (newQuantity <= 0) return removeItem(productId);
 
     setCartItems((prev) =>
       prev.map((item) =>
@@ -97,30 +111,33 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (userId) {
       try {
-        const q = query(collection(db, "users", userId, "cart"), where("productId", "==", productId));
+        const q = query(
+          collection(db, "users", userId, "cart"),
+          where("productId", "==", productId)
+        );
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
           await updateDoc(snapshot.docs[0].ref, {
-            quantity: newQuantity, 
+            quantity: newQuantity,
           });
         }
       } catch (error) {
-        console.error("Update failed:", error); 
+        console.error("Update failed:", error);
       }
     }
   };
 
   // Remove
   const removeItem = (productId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.productId !== productId)); 
-      deleteItemFromCart(userId, productId); 
+    setCartItems((prev) => prev.filter((item) => item.productId !== productId));
+    deleteItemFromCart(userId, productId);
   };
 
-  // Clear 
+  // Clear
   const clearCartItems = () => {
-    setCartItems([]); 
+    setCartItems([]);
     if (userId) {
-      clearCart(userId); 
+      clearCart(userId);
     }
   };
 
@@ -133,13 +150,16 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       // Sync the local cart to firestore database
-      const updatedCart = await syncLocalCartWithFirestore(newUserId, cartItems);
-      setCartItems(updatedCart); 
-      localStorage.removeItem("cart"); 
+      const updatedCart = await syncLocalCartWithFirestore(
+        newUserId,
+        cartItems
+      );
+      setCartItems(updatedCart);
+      localStorage.removeItem("cart");
     } catch (error) {
-      console.error("Error syncing cart with Firestore:", error); 
+      console.error("Error syncing cart with Firestore:", error);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -155,7 +175,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading,
       }}
     >
-      {children} 
+      {children}
     </CartContext.Provider>
   );
 };

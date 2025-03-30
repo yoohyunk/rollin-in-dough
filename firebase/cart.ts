@@ -1,7 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { addDoc, collection, getDocs, deleteDoc, updateDoc, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "./firebaseConfig";
-
 
 interface CartItem {
   productId: string;
@@ -21,7 +28,7 @@ const addItemToCart = async (userId: string, item: CartItem) => {
     if (!snapshot.empty) {
       const docRef = snapshot.docs[0].ref;
       await updateDoc(docRef, {
-        quantity: snapshot.docs[0].data().quantity + item.quantity
+        quantity: snapshot.docs[0].data().quantity + item.quantity,
       });
     } else {
       await addDoc(cartRef, {
@@ -29,7 +36,7 @@ const addItemToCart = async (userId: string, item: CartItem) => {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-        ...(item.image && { image: item.image })
+        ...(item.image && { image: item.image }),
       });
     }
   } catch (error) {
@@ -41,12 +48,12 @@ const addItemToCart = async (userId: string, item: CartItem) => {
 const getAllItemsFromCart = async (userId: string): Promise<CartItem[]> => {
   try {
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       productId: doc.data().productId,
       name: doc.data().name,
       quantity: doc.data().quantity,
       price: doc.data().price,
-      image: doc.data().image || ""
+      image: doc.data().image || "",
     }));
   } catch (error) {
     console.error("Error loading cart:", error);
@@ -57,7 +64,10 @@ const getAllItemsFromCart = async (userId: string): Promise<CartItem[]> => {
 // delete
 const deleteItemFromCart = async (userId: string, productId: string) => {
   try {
-    const q = query(collection(db, "users", userId, "cart"), where("productId", "==", productId));
+    const q = query(
+      collection(db, "users", userId, "cart"),
+      where("productId", "==", productId)
+    );
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
       await deleteDoc(snapshot.docs[0].ref);
@@ -72,7 +82,7 @@ const deleteItemFromCart = async (userId: string, productId: string) => {
 const clearCart = async (userId: string) => {
   try {
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
-    const deletePromises = snapshot.docs.map(d => deleteDoc(d.ref));
+    const deletePromises = snapshot.docs.map((d) => deleteDoc(d.ref));
     await Promise.all(deletePromises);
     console.log("Cart cleared for user:", userId);
   } catch (error) {
@@ -81,9 +91,16 @@ const clearCart = async (userId: string) => {
 };
 
 // updating cart item quantity
-const updateCartItemQuantity = async (userId: string, productId: string, newQuantity: number) => {
+const updateCartItemQuantity = async (
+  userId: string,
+  productId: string,
+  newQuantity: number
+) => {
   try {
-    const q = query(collection(db, "users", userId, "cart"), where("productId", "==", productId));
+    const q = query(
+      collection(db, "users", userId, "cart"),
+      where("productId", "==", productId)
+    );
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
       await updateDoc(snapshot.docs[0].ref, { quantity: newQuantity });
@@ -94,7 +111,10 @@ const updateCartItemQuantity = async (userId: string, productId: string, newQuan
 };
 
 // Ssync
-export const syncLocalCartWithFirestore = async (userId: string, localItems: CartItem[]): Promise<CartItem[]> => {
+export const syncLocalCartWithFirestore = async (
+  userId: string,
+  localItems: CartItem[]
+): Promise<CartItem[]> => {
   try {
     if (!localItems.length) {
       return getAllItemsFromCart(userId);
@@ -102,19 +122,21 @@ export const syncLocalCartWithFirestore = async (userId: string, localItems: Car
     const firestoreItems = await getAllItemsFromCart(userId);
 
     for (const localItem of localItems) {
-      const existingItem = firestoreItems.find(item => item.productId === localItem.productId);
-      
+      const existingItem = firestoreItems.find(
+        (item) => item.productId === localItem.productId
+      );
+
       if (existingItem) {
         await updateCartItemQuantity(
-          userId, 
-          existingItem.productId, 
+          userId,
+          existingItem.productId,
           existingItem.quantity + localItem.quantity
         );
       } else {
         await addItemToCart(userId, localItem);
       }
     }
-    
+
     return getAllItemsFromCart(userId);
   } catch (error) {
     console.error("Error syncing carts:", error);
@@ -127,5 +149,5 @@ export {
   getAllItemsFromCart,
   deleteItemFromCart,
   clearCart,
-  syncLocalCartWithFirestore
+  syncLocalCartWithFirestore,
 };
