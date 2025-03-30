@@ -1,62 +1,124 @@
 /* eslint-disable prettier/prettier */
-import { addDoc, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { addDoc, collection, getDocs, deleteDoc, updateDoc, query, where } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
+
 interface CartItem {
-  id: string;
+  productId: string;
   name: string;
   quantity: number;
   price: number;
+  image?: string;
 }
 
-// CREATE 
+// create
 const addItemToCart = async (userId: string, item: CartItem) => {
   try {
-    const docRef = await addDoc(collection(db, "users", userId, "cart"), {
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      price: item.price,
-    });
-    console.log("Added item ID:", docRef.id);
+    const cartRef = collection(db, "users", userId, "cart");
+    const q = query(cartRef, where("productId", "==", item.productId));
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      const docRef = snapshot.docs[0].ref;
+      await updateDoc(docRef, {
+        quantity: snapshot.docs[0].data().quantity + item.quantity
+      });
+    } else {
+      await addDoc(cartRef, {
+        productId: item.productId,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        ...(item.image && { image: item.image })
+      });
+    }
   } catch (error) {
     console.error("Error adding item to cart:", error);
   }
 };
 
-// GET ALL 
-const getAllItemsFromCart = async (userId: string) => {
+// get all
+const getAllItemsFromCart = async (userId: string): Promise<CartItem[]> => {
   try {
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
-    snapshot.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data());
-    });
+    return snapshot.docs.map(doc => ({
+      productId: doc.data().productId,
+      name: doc.data().name,
+      quantity: doc.data().quantity,
+      price: doc.data().price,
+      image: doc.data().image || ""
+    }));
   } catch (error) {
-    console.error("Error fetching items from cart:", error);
+    console.error("Error loading cart:", error);
+    return [];
   }
 };
 
-// DELETE 
-const deleteItemFromCart = async (userId: string, itemId: string) => {
+// delete
+const deleteItemFromCart = async (userId: string, productId: string) => {
   try {
-    const docRef = doc(db, "users", userId, "cart", itemId);
-    await deleteDoc(docRef);
-    console.log("Item deleted:", itemId);
+    const q = query(collection(db, "users", userId, "cart"), where("productId", "==", productId));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      await deleteDoc(snapshot.docs[0].ref);
+      console.log("Item removed:", productId);
+    }
   } catch (error) {
-    console.error("Error deleting item from cart:", error);
+    console.error("Error removing item from cart:", error);
   }
 };
 
-// CLEAR 
+// clear
 const clearCart = async (userId: string) => {
   try {
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
-    for (const d of snapshot.docs) {
-      await deleteDoc(d.ref);
-    }
+    const deletePromises = snapshot.docs.map(d => deleteDoc(d.ref));
+    await Promise.all(deletePromises);
     console.log("Cart cleared for user:", userId);
   } catch (error) {
     console.error("Error clearing cart:", error);
+  }
+};
+
+// updating cart item quantity
+const updateCartItemQuantity = async (userId: string, productId: string, newQuantity: number) => {
+  try {
+    const q = query(collection(db, "users", userId, "cart"), where("productId", "==", productId));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      await updateDoc(snapshot.docs[0].ref, { quantity: newQuantity });
+    }
+  } catch (error) {
+    console.error("Error updating item quantity:", error);
+  }
+};
+
+// Ssync
+export const syncLocalCartWithFirestore = async (userId: string, localItems: CartItem[]): Promise<CartItem[]> => {
+  try {
+    if (!localItems.length) {
+      return getAllItemsFromCart(userId);
+    }
+    const firestoreItems = await getAllItemsFromCart(userId);
+
+    for (const localItem of localItems) {
+      const existingItem = firestoreItems.find(item => item.productId === localItem.productId);
+      
+      if (existingItem) {
+        await updateCartItemQuantity(
+          userId, 
+          existingItem.productId, 
+          existingItem.quantity + localItem.quantity
+        );
+      } else {
+        await addItemToCart(userId, localItem);
+      }
+    }
+    
+    return getAllItemsFromCart(userId);
+  } catch (error) {
+    console.error("Error syncing carts:", error);
+    throw error;
   }
 };
 
@@ -64,5 +126,6 @@ export {
   addItemToCart,
   getAllItemsFromCart,
   deleteItemFromCart,
-  clearCart
+  clearCart,
+  syncLocalCartWithFirestore
 };

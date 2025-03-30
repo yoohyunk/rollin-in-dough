@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { PiShoppingCart } from "react-icons/pi";
 
 export default function Header() {
-  const headerHeight = "90px"; // Define the height of the header
+  const headerHeight = "60px";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
   const router = useRouter();
@@ -34,8 +34,10 @@ export default function Header() {
   return (
     <>
       {/* Header */}
-
-      <div className="fixed top-0 left-0 w-full bg-white py-2 px-2 md:px-8 z-50 ">
+      <div
+        className="fixed top-0 left-0 w-full bg-white py-4 px-2 md:px-8 z-50"
+        style={{ height: "90px" }}
+      >
         {/* Main header container */}
         <div className="flex justify-between items-center h-full relative">
           {/* Hamburger menu button - only visible on mobile */}
@@ -66,7 +68,6 @@ export default function Header() {
               <li>
                 <Link href="/about">About</Link>
               </li>
-
               <li>
                 <Link href="/contact">Contact</Link>
               </li>
@@ -74,13 +75,14 @@ export default function Header() {
           </nav>
 
           {/* Centered logo and title */}
-          <div className="  flex items-center">
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
             <Link href="/">
               <Image
                 src="/rollin-in-dough.jpg"
                 alt="Rollin in Dough Logo"
                 width={60}
                 height={60}
+                className="mr-2 md:mr-4 md:w-[80px] md:h-[80px]"
               />
             </Link>
           </div>
@@ -119,14 +121,13 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/about"
+                  href="/cart"
                   className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  About
+                  Cart
                 </Link>
               </li>
-
               <li>
                 <Link
                   href="/contact"
@@ -134,6 +135,15 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="block px-4 py-2 text-lg text-[#fc3296] hover:bg-[#fc3296] hover:text-white transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
                 </Link>
               </li>
             </ul>
