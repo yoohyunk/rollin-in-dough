@@ -21,7 +21,7 @@ interface CartItem {
   name: string;
   quantity: number;
   price: number;
-  image: string;
+  image?: string;
 }
 
 interface CartContextType {
@@ -130,7 +130,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Remove
   const removeItem = (productId: string) => {
     setCartItems((prev) => prev.filter((item) => item.productId !== productId));
-    deleteItemFromCart(userId, productId);
+    if (userId) {
+      deleteItemFromCart(userId, productId);
+    }
   };
 
   // Clear

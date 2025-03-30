@@ -110,7 +110,7 @@ const updateCartItemQuantity = async (
 };
 
 // Ssync
- const syncLocalCartWithFirestore = async (
+const syncLocalCartWithFirestore = async (
   userId: string,
   localItems: CartItem[]
 ): Promise<CartItem[]> => {
