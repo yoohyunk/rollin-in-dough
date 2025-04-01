@@ -1,48 +1,25 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-
-interface Cookie {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { useCart } from "@/app/Context/CartContext";
 
 interface PastOrder {
   id: string;
   date: string;
   total: number;
   status: "Delivered" | "Processing" | "Shipped";
-  items: Cookie[];
+  items: Array<{
+    productId: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+  }>;
 }
 
 const CartPage: React.FC = () => {
-  // mock data
-  const [cartItems, setCartItems] = useState<Cookie[]>([
-    {
-      id: 1,
-      name: "Chocolate Chip",
-      price: 2.5,
-      quantity: 2,
-      image: "/chocolate-chip.png",
-    },
-    {
-      id: 2,
-      name: "Sugar Cookie",
-      price: 3.0,
-      quantity: 1,
-      image: "/sugar-cookie.png",
-    },
-    {
-      id: 3,
-      name: "Nutella Loaded Coissant",
-      price: 1.5,
-      quantity: 3,
-      image: "/nutella-croissant.png",
-    },
-  ]);
+  const { cartItems, updateQuantity, removeItem, clearCartItems, isLoading } =
+    useCart();
 
   // Past orders data
   const [pastOrders, setPastOrders] = useState<PastOrder[]>([
@@ -53,14 +30,14 @@ const CartPage: React.FC = () => {
       status: "Delivered",
       items: [
         {
-          id: 1,
+          productId: "1",
           name: "Chocolate Chip",
           price: 2.5,
           quantity: 4,
           image: "/chocolate-chip.png",
         },
         {
-          id: 3,
+          productId: "3",
           name: "Nutella Loaded Coissant",
           price: 1.5,
           quantity: 4,
@@ -75,7 +52,7 @@ const CartPage: React.FC = () => {
       status: "Shipped",
       items: [
         {
-          id: 2,
+          productId: "2",
           name: "Sugar Cookie",
           price: 3.0,
           quantity: 3,
@@ -91,25 +68,17 @@ const CartPage: React.FC = () => {
       .toFixed(2);
   };
 
-  // Function to handle quantity updates
-  const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
+  //quantity updates
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
-      // Confirm before removing item
       const confirmed = window.confirm(
         "Are you sure you want to remove this item from your cart?"
       );
-
       if (confirmed) {
-        // Remove the item
-        setCartItems(cartItems.filter((item) => item.id !== itemId));
+        removeItem(productId);
       }
     } else {
-      // Update quantity
-      setCartItems(
-        cartItems.map((item) =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        )
-      );
+      updateQuantity(productId, newQuantity);
     }
   };
   //checkout button function
@@ -119,12 +88,15 @@ const CartPage: React.FC = () => {
       date: new Date().toISOString(),
       total: parseFloat(calculateTotal()),
       status: "Processing",
-      items: [...cartItems], // Copy current cart items
+      items: cartItems.map((item) => ({
+        ...item,
+        image: item.image || "/default-product-image.png",
+      })),
     };
     // Add the new order to pastOrders
     setPastOrders((prevOrders) => [...prevOrders, newOrder]);
-    // Clear the cart
-    setCartItems([]);
+    // Clear the cart using context function
+    clearCartItems();
     alert("Order placed successfully!");
   };
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -136,7 +108,14 @@ const CartPage: React.FC = () => {
       setExpandedOrder(orderId);
     }
   };
-
+  //loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-8 flex justify-center items-center">
+        <p>Loading your cart...</p>
+      </div>
+    );
+  }
   return (
     <>
       <main className="min-h-screen py-8">
@@ -150,13 +129,13 @@ const CartPage: React.FC = () => {
                 <div className="space-y-6">
                   {cartItems.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.productId}
                       className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300"
                     >
                       <div className="flex items-center space-x-4">
                         <div className="relative w-20 h-20">
                           <Image
-                            src={item.image}
+                            src={item.image || "/default-product-image.png"}
                             alt={item.name}
                             fill
                             className="object-cover rounded"
@@ -166,7 +145,9 @@ const CartPage: React.FC = () => {
                           <h2 className="text-lg font-semibold">{item.name}</h2>
                           <div className="flex items-center mt-2 space-x-2">
                             <button
-                              onClick={() => handleUpdateQuantity(item.id, 0)}
+                              onClick={() =>
+                                handleUpdateQuantity(item.productId, 0)
+                              }
                               className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
                             >
                               ✕
@@ -174,7 +155,7 @@ const CartPage: React.FC = () => {
                             <button
                               onClick={() =>
                                 handleUpdateQuantity(
-                                  item.id,
+                                  item.productId,
                                   Math.max(0, item.quantity - 1)
                                 )
                               }
@@ -187,7 +168,10 @@ const CartPage: React.FC = () => {
                             </span>
                             <button
                               onClick={() =>
-                                handleUpdateQuantity(item.id, item.quantity + 1)
+                                handleUpdateQuantity(
+                                  item.productId,
+                                  item.quantity + 1
+                                )
                               }
                               className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
                             >
@@ -279,7 +263,10 @@ const CartPage: React.FC = () => {
                         <p className="font-medium mb-2">Order Items:</p>
                         <ul className="space-y-2">
                           {order.items.map((item) => (
-                            <li key={item.id} className="flex justify-between">
+                            <li
+                              key={item.productId}
+                              className="flex justify-between"
+                            >
                               <span>
                                 {item.quantity}x {item.name}
                               </span>

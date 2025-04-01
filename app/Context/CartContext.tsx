@@ -19,8 +19,8 @@ import { db } from "@/firebase/firebaseConfig";
 interface CartItem {
   productId: string;
   name: string;
-  quantity: number;
   price: number;
+  quantity: number;
   image?: string;
 }
 

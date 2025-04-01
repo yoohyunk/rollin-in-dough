@@ -15,10 +15,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
 import { PiUserBold } from "react-icons/pi";
+import { useCart } from "@/app/Context/CartContext";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthModal() {
+  const { syncWithFirestore } = useCart();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -45,51 +47,65 @@ export default function AuthModal() {
     e.preventDefault();
     setError(null);
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (currentForm === "login") {
-      if (!email || !password) {
-        setError("Please fill in all required fields.");
-        return;
-      }
-    } else if (currentForm === "signup") {
-      if (!firstName || !lastName || !email || !password || !passwordConfirm) {
-        setError("Please fill in all required fields.");
-        return;
-      }
-      if (!passwordRegex.test(password)) {
-        setError(
-          "Password must be at least 8 characters long and include both letters and numbers."
-        );
-        setPassword("");
-        setPasswordConfirm("");
-        return;
-      }
-      if (password !== passwordConfirm) {
-        setError("Passwords do not match.");
-        setPassword("");
-        setPasswordConfirm("");
-        return;
-      }
-    }
+
     try {
       if (currentForm === "login") {
+        if (!email || !password) {
+          setError("Please fill in all required fields.");
+          return;
+        }
+
         const user = await signInWithEmail(email, password);
-        console.log("User signed in:", user);
+        if (user) {
+          console.log("User signed in:", user);
+          await syncWithFirestore(user.uid);
+        }
       } else if (currentForm === "signup") {
+        if (
+          !firstName ||
+          !lastName ||
+          !email ||
+          !password ||
+          !passwordConfirm
+        ) {
+          setError("Please fill in all required fields.");
+          return;
+        }
+
+        if (!passwordRegex.test(password)) {
+          setError(
+            "Password must be at least 8 characters long and include both letters and numbers."
+          );
+          setPassword("");
+          setPasswordConfirm("");
+          return;
+        }
+
+        if (password !== passwordConfirm) {
+          setError("Passwords do not match.");
+          setPassword("");
+          setPasswordConfirm("");
+          return;
+        }
+
         const user = await signUpWithEmail(
           firstName,
           lastName,
           email,
           password
         );
-        console.log("User signed up:", user);
+        if (user) {
+          console.log("User signed up:", user);
+          await syncWithFirestore(user.uid);
+        }
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unknown error occurred");
+        setError("An unknown error occurred.");
       }
-      console.error("Sign in error:", err);
+      console.error("Error:", err);
     }
   };
 
