@@ -8,6 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
+import { getAuth } from "firebase/auth";
 
 interface CartItem {
   productId: string;
@@ -18,8 +19,15 @@ interface CartItem {
 }
 
 // create
-const addItemToCart = async (userId: string, item: CartItem) => {
+const addItemToCart = async (
+  item: Omit<CartItem, "quantity">,
+  quantity: number
+): Promise<number | null> => {
   try {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error("User not authenticated");
+
     const cartRef = collection(db, "users", userId, "cart");
     const q = query(cartRef, where("productId", "==", item.productId));
     const snapshot = await getDocs(q);
@@ -27,25 +35,36 @@ const addItemToCart = async (userId: string, item: CartItem) => {
     if (!snapshot.empty) {
       const docRef = snapshot.docs[0].ref;
       await updateDoc(docRef, {
-        quantity: snapshot.docs[0].data().quantity + item.quantity,
+        quantity,
       });
+      return quantity;
     } else {
       await addDoc(cartRef, {
         productId: item.productId,
         name: item.name,
-        quantity: item.quantity,
+        quantity,
         price: item.price,
         ...(item.image && { image: item.image }),
       });
+      return quantity;
     }
-  } catch (error) {
-    console.error("Error adding item to cart:", error);
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    return null;
   }
 };
 
 // get all
-const getAllItemsFromCart = async (userId: string): Promise<CartItem[]> => {
+const getAllItemsFromCart = async (): Promise<CartItem[]> => {
   try {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      throw new Error(
+        "User ID is undefined. Please ensure the user is authenticated."
+      );
+    }
+
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
     return snapshot.docs.map((doc) => ({
       productId: doc.data().productId,
@@ -61,10 +80,12 @@ const getAllItemsFromCart = async (userId: string): Promise<CartItem[]> => {
 };
 
 // delete
-const deleteItemFromCart = async (userId: string, productId: string) => {
+const deleteItemFromCart = async (productId: string) => {
   try {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
     const q = query(
-      collection(db, "users", userId, "cart"),
+      collection(db, "users", userId!, "cart"),
       where("productId", "==", productId)
     );
     const snapshot = await getDocs(q);
@@ -78,8 +99,15 @@ const deleteItemFromCart = async (userId: string, productId: string) => {
 };
 
 // clear
-const clearCart = async (userId: string) => {
+const clearCart = async () => {
   try {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      throw new Error(
+        "User ID is undefined. Please ensure the user is authenticated."
+      );
+    }
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
     const deletePromises = snapshot.docs.map((d) => deleteDoc(d.ref));
     await Promise.all(deletePromises);
@@ -91,13 +119,14 @@ const clearCart = async (userId: string) => {
 
 // updating cart item quantity
 const updateCartItemQuantity = async (
-  userId: string,
   productId: string,
   newQuantity: number
 ) => {
   try {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
     const q = query(
-      collection(db, "users", userId, "cart"),
+      collection(db, "users", userId!, "cart"),
       where("productId", "==", productId)
     );
     const snapshot = await getDocs(q);
@@ -111,14 +140,20 @@ const updateCartItemQuantity = async (
 
 // Ssync
 const syncLocalCartWithFirestore = async (
-  userId: string,
   localItems: CartItem[]
 ): Promise<CartItem[]> => {
   try {
-    if (!localItems.length) {
-      return getAllItemsFromCart(userId);
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      throw new Error(
+        "User ID is undefined. Please ensure the user is authenticated."
+      );
     }
-    const firestoreItems = await getAllItemsFromCart(userId);
+    if (!localItems.length) {
+      return getAllItemsFromCart();
+    }
+    const firestoreItems = await getAllItemsFromCart();
 
     for (const localItem of localItems) {
       const existingItem = firestoreItems.find(
@@ -127,16 +162,23 @@ const syncLocalCartWithFirestore = async (
 
       if (existingItem) {
         await updateCartItemQuantity(
-          userId,
           existingItem.productId,
           existingItem.quantity + localItem.quantity
         );
       } else {
-        await addItemToCart(userId, localItem);
+        await addItemToCart(
+          {
+            productId: localItem.productId,
+            name: localItem.name,
+            price: localItem.price,
+            image: localItem.image,
+          },
+          localItem.quantity
+        );
       }
     }
 
-    return getAllItemsFromCart(userId);
+    return getAllItemsFromCart();
   } catch (error) {
     console.error("Error syncing carts:", error);
     throw error;
@@ -147,6 +189,7 @@ export {
   addItemToCart,
   getAllItemsFromCart,
   deleteItemFromCart,
+  updateCartItemQuantity,
   clearCart,
   syncLocalCartWithFirestore,
 };
