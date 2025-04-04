@@ -1,26 +1,7 @@
 import { CookieProduct } from "@/app/cookies";
 import { NextRequest, NextResponse } from "next/server";
 import { SquareClient, SquareEnvironment, SquareError } from "square";
-
-interface CatalogItem {
-  id: string;
-  type: string;
-  imageData?: { url: string };
-  itemData?: {
-    name: string;
-    description: string;
-    imageIds: string[];
-    variations: {
-      id: string;
-      itemVariationData?: {
-        priceMoney?: {
-          amount: number;
-          currency: string;
-        };
-      };
-    }[];
-  };
-}
+import { CatalogItem } from "@/types/customerData";
 
 export async function GET(request: NextRequest) {
   try {
