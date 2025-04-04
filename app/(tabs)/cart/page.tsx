@@ -1,15 +1,11 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
-import {
-  getAllItemsFromCart,
-  updateCartItemQuantity,
-  deleteItemFromCart,
-  clearCart,
-} from "@/firebase/cart";
+import { useCart } from "@/app/Context/CartContext"; // Adjust the import path as needed
 
+// Define types for your past orders and cookies (you can also reuse your CookieProduct type if available)
 interface Cookie {
   id: string;
   variationId: string;
@@ -28,103 +24,15 @@ interface PastOrder {
 }
 
 const CartPage: React.FC = () => {
-  const [cartItems, setCartItems] = useState<Cookie[]>([]);
+  const { cartItems, updateQuantity, clearCart } = useCart();
   const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-  const hasLoadedCart = useRef(false);
   const router = useRouter();
-
-  useEffect(() => {
-    console.log("hello");
-    const loadCart = async () => {
-      const auth = getAuth();
-      const userId = auth.currentUser?.uid;
-
-      if (userId) {
-        const firestoreItems = await getAllItemsFromCart();
-        console.log("Firestore items:", firestoreItems);
-        const formatted = firestoreItems.map((item) => ({
-          id: item.productId,
-          variationId: item.variationId || "",
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || "/placeholder.png",
-        }));
-        setCartItems(formatted);
-      } else {
-        const local = localStorage.getItem("localCart");
-        console.log("Local cart:", local);
-        if (local) {
-          try {
-            const parsed = JSON.parse(local);
-            const formatted = parsed.map((item: Cookie) => ({
-              id: item.id,
-              variationId: item.variationId || "",
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              image: item.image || "/placeholder.png",
-            }));
-            setCartItems(formatted);
-          } catch (err) {
-            console.error("Failed to parse or format localCart:", err);
-          }
-        }
-      }
-
-      hasLoadedCart.current = true;
-    };
-
-    loadCart();
-  }, []);
-
-  useEffect(() => {
-    const auth = getAuth();
-    const userId = auth.currentUser?.uid;
-
-    if (!userId && hasLoadedCart.current && cartItems.length > 0) {
-      const simplified = cartItems.map((item) => ({
-        product: {
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          imageUrl: item.image,
-        },
-        quantity: item.quantity,
-      }));
-      localStorage.setItem("localCart", JSON.stringify(simplified));
-    }
-  }, [cartItems]);
 
   const calculateTotal = () => {
     return cartItems
-      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .reduce((total, item) => total + item.product.price * item.quantity, 0)
       .toFixed(2);
-  };
-
-  const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
-    const auth = getAuth();
-    const userId = auth.currentUser?.uid;
-    const item = cartItems.find((item) => item.id === itemId);
-    if (!item) return;
-
-    if (newQuantity === 0) {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to remove this item?"
-      );
-      if (!confirmDelete) return;
-
-      setCartItems(cartItems.filter((item) => item.id !== itemId));
-
-      if (userId) await deleteItemFromCart(itemId);
-    } else {
-      const updated = cartItems.map((item) =>
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      );
-      setCartItems(updated);
-      if (userId) await updateCartItemQuantity(itemId, newQuantity);
-    }
   };
 
   const handleCheckout = async () => {
@@ -141,7 +49,14 @@ const CartPage: React.FC = () => {
     const res = await fetch("/api/create-order", {
       method: "POST",
       body: JSON.stringify({
-        items: cartItems,
+        items: cartItems.map((item) => ({
+          id: item.product.id,
+          variationId: item.product.variationId,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+          image: item.product.imageUrl,
+        })),
         email: user.email,
       }),
     });
@@ -152,34 +67,28 @@ const CartPage: React.FC = () => {
     }
     const reDirectUrl = data.order.url;
     if (reDirectUrl) {
-      // Clear cart before navigating away
-      const userId = user.uid;
-      if (userId) {
-        await clearCart();
-      } else {
-        localStorage.removeItem("localCart");
-      }
-
-      setCartItems([]); // update local state
-      router.push(reDirectUrl); // now safe to leave
+      // Clear the cart using the custom hook
+      await clearCart();
+      router.push(reDirectUrl);
     }
 
+    // Optionally, create a past order record locally
     const order: PastOrder = {
       id: `ORD-${Date.now()}`,
       date: new Date().toISOString(),
       total: parseFloat(calculateTotal()),
       status: "Processing",
-      items: [...cartItems],
+      items: cartItems.map((item) => ({
+        id: item.product.id,
+        variationId: item.product.variationId,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        image: item.product.imageUrl,
+      })),
     };
 
     setPastOrders((prev) => [...prev, order]);
-
-    if (user.uid) {
-      await clearCart();
-    } else {
-      localStorage.removeItem("localCart");
-    }
-
     alert("Order placed successfully!");
   };
 
@@ -199,30 +108,32 @@ const CartPage: React.FC = () => {
               <div className="space-y-6">
                 {cartItems.map((item, index) => (
                   <div
-                    key={`${item.id}-${index}`}
+                    key={`${item.product.id}-${index}`}
                     className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="relative w-20 h-20">
                         <Image
-                          src={item.image || "/placeholder.png"}
-                          alt={item.name || "Product image"}
+                          src={item.product.imageUrl || "/placeholder.png"}
+                          alt={item.product.name || "Product image"}
                           fill
                           className="object-cover rounded"
                         />
                       </div>
                       <div>
-                        <h2 className="text-lg font-semibold">{item.name}</h2>
+                        <h2 className="text-lg font-semibold">
+                          {item.product.name}
+                        </h2>
                         <div className="flex items-center mt-2 space-x-2">
                           <button
-                            onClick={() => handleUpdateQuantity(item.id, 0)}
+                            onClick={() => updateQuantity(item.product.id, 0)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             ✕
                           </button>
                           <button
                             onClick={() =>
-                              handleUpdateQuantity(item.id, item.quantity - 1)
+                              updateQuantity(item.product.id, item.quantity - 1)
                             }
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
@@ -231,7 +142,7 @@ const CartPage: React.FC = () => {
                           <span>{item.quantity}</span>
                           <button
                             onClick={() =>
-                              handleUpdateQuantity(item.id, item.quantity + 1)
+                              updateQuantity(item.product.id, item.quantity + 1)
                             }
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
@@ -241,7 +152,7 @@ const CartPage: React.FC = () => {
                       </div>
                     </div>
                     <p className="text-lg font-semibold">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.product.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}

@@ -1,40 +1,13 @@
+// MenuPage.tsx
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import CookieCard, { CookieProduct } from "../../cookies";
-import { getAuth } from "firebase/auth";
-import {
-  addItemToCart,
-  deleteItemFromCart,
-  getAllItemsFromCart,
-  syncLocalCartWithFirestore,
-  updateCartItemQuantity,
-} from "@/firebase/cart";
+import { useCart } from "@/app/Context/CartContext"; // Adjust the import path as needed
 
 export default function MenuPage() {
   const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const hasLoadedCart = useRef(false);
-
-  const auth = getAuth();
-  const user = auth.currentUser;
-  const userId = user?.uid || null;
-
-  interface CartItem {
-    product: CookieProduct;
-    quantity: number;
-  }
-  interface LocalCartItem {
-    product: {
-      id: string;
-      variationId: string;
-      name: string;
-      price: number;
-      imageUrl: string;
-      description: string;
-    };
-    quantity: number;
-  }
+  const { cartItems, addToCart, updateQuantity } = useCart();
 
   useEffect(() => {
     const fetchCatalogItems = async () => {
@@ -44,7 +17,7 @@ export default function MenuPage() {
           headers: { "Content-Type": "application/json" },
         });
         const data = await res.json();
-        console.log("Catalog response in shop:", data);
+        console.log("Catalog response:", data);
         setCookieProducts(data);
       } catch (error) {
         console.error("Error fetching catalog items:", error);
@@ -55,151 +28,6 @@ export default function MenuPage() {
 
     fetchCatalogItems();
   }, []);
-
-  const handleAddToCart = async (product: CookieProduct, quantity: number) => {
-    const existingIndex = cartItems.findIndex(
-      (item) => item.product.id === product.id
-    );
-    const updatedCart = [...cartItems];
-
-    if (existingIndex >= 0) {
-      updatedCart[existingIndex].quantity += quantity;
-    } else {
-      updatedCart.push({ product, quantity });
-    }
-
-    setCartItems(updatedCart);
-
-    if (userId) {
-      await addItemToCart(
-        {
-          productId: product.id,
-          variationId: product.variationId,
-          name: product.name,
-          price: product.price,
-          image: product.imageUrl,
-        },
-        updatedCart.find((item) => item.product.id === product.id)!.quantity
-      );
-    }
-  };
-
-  const handleUpdateQuantity = async (
-    productId: string,
-    newQuantity: number
-  ) => {
-    const existingIndex = cartItems.findIndex(
-      (item) => item.product.id === productId
-    );
-    if (existingIndex < 0) return;
-
-    if (newQuantity === 0) {
-      const confirmed = window.confirm(
-        "Are you sure you want to remove this item from your cart?"
-      );
-      if (confirmed) {
-        setCartItems(cartItems.filter((item) => item.product.id !== productId));
-        if (userId) await deleteItemFromCart(productId);
-      }
-    } else {
-      const updatedCart = [...cartItems];
-      updatedCart[existingIndex].quantity = newQuantity;
-      setCartItems(updatedCart);
-      if (userId) await updateCartItemQuantity(productId, newQuantity);
-    }
-  };
-
-  useEffect(() => {
-    const loadUserCart = async () => {
-      if (userId) {
-        const cart = await getAllItemsFromCart();
-        const formattedCart = cart.map((item) => ({
-          product: {
-            id: item.productId,
-            variationId: item.variationId || "",
-            name: item.name,
-            price: item.price,
-            imageUrl: item.image || "",
-            description: "",
-          },
-          quantity: item.quantity,
-        }));
-        setCartItems(formattedCart);
-      } else {
-        const localCart = localStorage.getItem("localCart");
-        if (localCart) {
-          try {
-            const parsed = JSON.parse(localCart);
-
-            const restoredCart: LocalCartItem[] = parsed.map(
-              (item: LocalCartItem) => ({
-                product: {
-                  id: item.product.id,
-                  variationId: item.product.variationId || "",
-                  name: item.product.name,
-                  price: item.product.price,
-                  imageUrl: item.product.imageUrl || "",
-                  description: "",
-                },
-                quantity: item.quantity,
-              })
-            );
-            setCartItems(restoredCart);
-          } catch (e) {
-            console.error("Failed to parse local cart:", e);
-          }
-        }
-      }
-
-      hasLoadedCart.current = true; // ✅ mark loaded
-    };
-
-    loadUserCart();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId && hasLoadedCart.current && cartItems.length > 0) {
-      const simplifiedCart = cartItems.map((item) => ({
-        product: {
-          id: item.product.id,
-          variationId: item.product.variationId || "",
-          name: item.product.name,
-          price: item.product.price,
-          imageUrl: item.product.imageUrl,
-        },
-        quantity: item.quantity,
-      }));
-      localStorage.setItem("localCart", JSON.stringify(simplifiedCart));
-    }
-  }, [cartItems, userId]);
-
-  useEffect(() => {
-    const syncCartAfterLogin = async () => {
-      if (!userId) return;
-
-      const localCart = localStorage.getItem("localCart");
-      if (!localCart) return;
-
-      try {
-        const parsed = JSON.parse(localCart);
-        const cartItemsToSync = parsed.map((item: LocalCartItem) => ({
-          productId: item.product.id,
-          variationId: item.product.variationId || "",
-          name: item.product.name,
-          quantity: item.quantity,
-          price: item.product.price,
-          image: item.product.imageUrl || "",
-        }));
-
-        await syncLocalCartWithFirestore(cartItemsToSync);
-        localStorage.removeItem("localCart");
-      } catch (err) {
-        console.error("Error syncing local cart after login:", err);
-      }
-    };
-
-    syncCartAfterLogin();
-  }, [userId]);
 
   return (
     <main className="min-h-screen py-8">
@@ -225,7 +53,7 @@ export default function MenuPage() {
                         <div className="flex items-center">
                           <button
                             onClick={() =>
-                              handleUpdateQuantity(
+                              updateQuantity(
                                 item.product.id,
                                 Math.max(0, item.quantity - 1)
                               )
@@ -239,10 +67,7 @@ export default function MenuPage() {
                           </span>
                           <button
                             onClick={() =>
-                              handleUpdateQuantity(
-                                item.product.id,
-                                item.quantity + 1
-                              )
+                              updateQuantity(item.product.id, item.quantity + 1)
                             }
                             className="px-2 py-1 bg-gray-200 rounded-r hover:bg-gray-300"
                           >
@@ -279,14 +104,14 @@ export default function MenuPage() {
             )}
           </div>
 
-          {/* Cookie grid section */}
+          {/* Catalog grid section */}
           <div className={`${cartItems.length > 0 ? "lg:w-2/3" : "w-full"}`}>
             <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {cookieProducts.map((product) => (
                 <CookieCard
                   key={product.id}
                   product={product}
-                  onAddToCart={handleAddToCart}
+                  onAddToCart={addToCart}
                 />
               ))}
             </div>
