@@ -55,7 +55,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       if (userId) {
         setIsLoading(true);
         try {
-          const items = await getAllItemsFromCart(userId);
+          const items = await getAllItemsFromCart();
           setCartItems(items);
         } finally {
           setIsLoading(false);
@@ -95,7 +95,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (userId) {
-      addItemToCart(userId, item);
+      addItemToCart(item, item.quantity);
     }
   };
 
@@ -131,7 +131,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const removeItem = (productId: string) => {
     setCartItems((prev) => prev.filter((item) => item.productId !== productId));
     if (userId) {
-      deleteItemFromCart(userId, productId);
+      deleteItemFromCart(productId);
     }
   };
 
@@ -139,7 +139,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const clearCartItems = () => {
     setCartItems([]);
     if (userId) {
-      clearCart(userId);
+      clearCart();
     }
   };
 
@@ -152,10 +152,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       // Sync the local cart to firestore database
-      const updatedCart = await syncLocalCartWithFirestore(
-        newUserId,
-        cartItems
-      );
+      const updatedCart = await syncLocalCartWithFirestore(cartItems);
       setCartItems(updatedCart);
       localStorage.removeItem("cart");
     } catch (error) {

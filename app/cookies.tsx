@@ -4,6 +4,7 @@ import Image from "next/image";
 // Define the cookie product interface
 export interface CookieProduct {
   id: string;
+  variationId: string;
   name: string;
   price: number;
   description: string;
