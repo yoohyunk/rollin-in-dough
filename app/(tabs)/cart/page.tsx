@@ -32,15 +32,19 @@ const CartPage: React.FC = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const hasLoadedCart = useRef(false);
   const router = useRouter();
-  const auth = getAuth();
-  const userId = auth.currentUser?.uid;
 
   useEffect(() => {
+    console.log("hello");
     const loadCart = async () => {
+      const auth = getAuth();
+      const userId = auth.currentUser?.uid;
+
       if (userId) {
         const firestoreItems = await getAllItemsFromCart();
+        console.log("Firestore items:", firestoreItems);
         const formatted = firestoreItems.map((item) => ({
           id: item.productId,
+          variationId: item.variationId,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
@@ -49,11 +53,13 @@ const CartPage: React.FC = () => {
         setCartItems(formatted);
       } else {
         const local = localStorage.getItem("localCart");
+        console.log("Local cart:", local);
         if (local) {
           try {
             const parsed = JSON.parse(local);
             const formatted = parsed.map((item: any) => ({
               id: item.product.id,
+              variationId: item.product.variationId || "",
               name: item.product.name,
               price: item.product.price,
               quantity: item.quantity,
@@ -70,9 +76,12 @@ const CartPage: React.FC = () => {
     };
 
     loadCart();
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+
     if (!userId && hasLoadedCart.current && cartItems.length > 0) {
       const simplified = cartItems.map((item) => ({
         product: {
@@ -85,7 +94,7 @@ const CartPage: React.FC = () => {
       }));
       localStorage.setItem("localCart", JSON.stringify(simplified));
     }
-  }, [cartItems, userId]);
+  }, [cartItems]);
 
   const calculateTotal = () => {
     return cartItems
@@ -94,6 +103,8 @@ const CartPage: React.FC = () => {
   };
 
   const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
     const item = cartItems.find((item) => item.id === itemId);
     if (!item) return;
 
@@ -104,6 +115,7 @@ const CartPage: React.FC = () => {
       if (!confirmDelete) return;
 
       setCartItems(cartItems.filter((item) => item.id !== itemId));
+
       if (userId) await deleteItemFromCart(itemId);
     } else {
       const updated = cartItems.map((item) =>
@@ -115,6 +127,42 @@ const CartPage: React.FC = () => {
   };
 
   const handleCheckout = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please log in to place an order.");
+      return;
+    }
+    if (cartItems.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      body: JSON.stringify({
+        items: cartItems,
+        email: user.email,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Error creating order: " + data.message);
+      return;
+    }
+    const reDirectUrl = data.order.url;
+    if (reDirectUrl) {
+      // Clear cart before navigating away
+      const userId = user.uid;
+      if (userId) {
+        await clearCart();
+      } else {
+        localStorage.removeItem("localCart");
+      }
+
+      setCartItems([]); // update local state
+      router.push(reDirectUrl); // now safe to leave
+    }
+
     const order: PastOrder = {
       id: `ORD-${Date.now()}`,
       date: new Date().toISOString(),
@@ -124,9 +172,8 @@ const CartPage: React.FC = () => {
     };
 
     setPastOrders((prev) => [...prev, order]);
-    setCartItems([]);
 
-    if (userId) {
+    if (user.uid) {
       await clearCart();
     } else {
       localStorage.removeItem("localCart");
