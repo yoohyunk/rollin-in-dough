@@ -63,6 +63,7 @@ export default function MenuPage() {
       await addItemToCart(
         {
           productId: product.id,
+          variationId: product.variationId,
           name: product.name,
           price: product.price,
           image: product.imageUrl,
@@ -104,6 +105,7 @@ export default function MenuPage() {
         const formattedCart = cart.map((item) => ({
           product: {
             id: item.productId,
+            variationId: item.variationId || "",
             name: item.name,
             price: item.price,
             imageUrl: item.image || "",
@@ -120,6 +122,7 @@ export default function MenuPage() {
             const restoredCart = parsed.map((item: any) => ({
               product: {
                 id: item.product.id,
+                variationId: item.product.variationId || "",
                 name: item.product.name,
                 price: item.product.price,
                 imageUrl: item.product.imageUrl || "",
@@ -145,6 +148,7 @@ export default function MenuPage() {
       const simplifiedCart = cartItems.map((item) => ({
         product: {
           id: item.product.id,
+          variationId: item.product.variationId || "",
           name: item.product.name,
           price: item.product.price,
           imageUrl: item.product.imageUrl,
@@ -166,6 +170,7 @@ export default function MenuPage() {
         const parsed = JSON.parse(localCart);
         const cartItemsToSync = parsed.map((item: any) => ({
           productId: item.product.id,
+          variationId: item.product.variationId || "",
           name: item.product.name,
           quantity: item.quantity,
           price: item.product.price,
