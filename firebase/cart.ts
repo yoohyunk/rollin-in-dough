@@ -12,6 +12,7 @@ import { getAuth } from "firebase/auth";
 
 interface CartItem {
   productId: string;
+  variationId?: string;
   name: string;
   quantity: number;
   price: number;
@@ -41,6 +42,7 @@ const addItemToCart = async (
     } else {
       await addDoc(cartRef, {
         productId: item.productId,
+        variationId: item.variationId || "",
         name: item.name,
         quantity,
         price: item.price,
@@ -68,6 +70,7 @@ const getAllItemsFromCart = async (): Promise<CartItem[]> => {
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
     return snapshot.docs.map((doc) => ({
       productId: doc.data().productId,
+      variationId: doc.data().variationId || "",
       name: doc.data().name,
       quantity: doc.data().quantity,
       price: doc.data().price,
@@ -169,6 +172,7 @@ const syncLocalCartWithFirestore = async (
         await addItemToCart(
           {
             productId: localItem.productId,
+            variationId: localItem.variationId,
             name: localItem.name,
             price: localItem.price,
             image: localItem.image,

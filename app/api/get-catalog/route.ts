@@ -11,6 +11,7 @@ interface CatalogItem {
     description: string;
     imageIds: string[];
     variations: {
+      id: string;
       itemVariationData?: {
         priceMoney?: {
           amount: number;
@@ -80,6 +81,7 @@ export async function GET(request: NextRequest) {
       }
       return {
         id: item.id,
+        variationId: item.itemData?.variations[0].id || "",
         name,
         description,
         imageUrl,
