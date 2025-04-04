@@ -12,6 +12,7 @@ import {
 
 interface Cookie {
   id: string;
+  variationId: string;
   name: string;
   price: number;
   quantity: number;
@@ -44,7 +45,7 @@ const CartPage: React.FC = () => {
         console.log("Firestore items:", firestoreItems);
         const formatted = firestoreItems.map((item) => ({
           id: item.productId,
-          variationId: item.variationId,
+          variationId: item.variationId || "",
           name: item.name,
           price: item.price,
           quantity: item.quantity,
@@ -57,13 +58,13 @@ const CartPage: React.FC = () => {
         if (local) {
           try {
             const parsed = JSON.parse(local);
-            const formatted = parsed.map((item: any) => ({
-              id: item.product.id,
-              variationId: item.product.variationId || "",
-              name: item.product.name,
-              price: item.product.price,
+            const formatted = parsed.map((item: Cookie) => ({
+              id: item.id,
+              variationId: item.variationId || "",
+              name: item.name,
+              price: item.price,
               quantity: item.quantity,
-              image: item.product.imageUrl || "/placeholder.png",
+              image: item.image || "/placeholder.png",
             }));
             setCartItems(formatted);
           } catch (err) {

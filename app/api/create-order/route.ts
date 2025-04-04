@@ -76,10 +76,12 @@ export async function POST(request: NextRequest) {
     }
     console.log("Items in order:", items);
 
-    const lineItems = items.map((item: any) => ({
-      quantity: item.quantity.toString(),
-      catalogObjectId: item.variationId,
-    }));
+    const lineItems = items.map(
+      (item: { quantity: number; variationId: string }) => ({
+        quantity: item.quantity.toString(),
+        catalogObjectId: item.variationId,
+      })
+    );
 
     console.log("Line items:", lineItems);
 

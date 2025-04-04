@@ -24,6 +24,17 @@ export default function MenuPage() {
     product: CookieProduct;
     quantity: number;
   }
+  interface LocalCartItem {
+    product: {
+      id: string;
+      variationId: string;
+      name: string;
+      price: number;
+      imageUrl: string;
+      description: string;
+    };
+    quantity: number;
+  }
 
   useEffect(() => {
     const fetchCatalogItems = async () => {
@@ -119,17 +130,20 @@ export default function MenuPage() {
         if (localCart) {
           try {
             const parsed = JSON.parse(localCart);
-            const restoredCart = parsed.map((item: any) => ({
-              product: {
-                id: item.product.id,
-                variationId: item.product.variationId || "",
-                name: item.product.name,
-                price: item.product.price,
-                imageUrl: item.product.imageUrl || "",
-                description: "",
-              },
-              quantity: item.quantity,
-            }));
+
+            const restoredCart: LocalCartItem[] = parsed.map(
+              (item: LocalCartItem) => ({
+                product: {
+                  id: item.product.id,
+                  variationId: item.product.variationId || "",
+                  name: item.product.name,
+                  price: item.product.price,
+                  imageUrl: item.product.imageUrl || "",
+                  description: "",
+                },
+                quantity: item.quantity,
+              })
+            );
             setCartItems(restoredCart);
           } catch (e) {
             console.error("Failed to parse local cart:", e);
@@ -168,7 +182,7 @@ export default function MenuPage() {
 
       try {
         const parsed = JSON.parse(localCart);
-        const cartItemsToSync = parsed.map((item: any) => ({
+        const cartItemsToSync = parsed.map((item: LocalCartItem) => ({
           productId: item.product.id,
           variationId: item.product.variationId || "",
           name: item.product.name,
