@@ -40,3 +40,23 @@ export interface CatalogItem {
     }[];
   };
 }
+
+export interface CartItem {
+  product: {
+    id: string;
+    variationId: string;
+  };
+  quantity: number;
+}
+
+export interface DisplayCartItem {
+  product: {
+    id: string;
+    variationId: string;
+    name: string;
+    price: number;
+    imageUrl: string;
+    description: string;
+  };
+  quantity: number;
+}
