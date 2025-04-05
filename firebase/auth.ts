@@ -43,7 +43,6 @@ export const signUpWithEmail = async (
 
     // Send email verification to the new user
     await sendEmailVerification(user);
-    console.log("Email verification sent to:", user.email);
 
     return user;
   } catch (error) {
@@ -64,19 +63,16 @@ export const signInWithEmail = async (
     );
     const user = userCredential.user;
     if (!user.emailVerified) {
-      console.log("Email not verified. Please verify your email.");
       return user;
     }
 
     if (user) {
       const token = await user.getIdToken();
-      const response = await fetch("/api/set-cookie", {
+      await fetch("/api/set-cookie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: token }),
       });
-      const data = await response.json();
-      console.log(data);
     }
 
     const displayName = user.displayName || "";
@@ -104,9 +100,6 @@ export const signInWithEmail = async (
       throw new Error("Failed to create Square customer");
     }
 
-    const squareData = await squareRes.json();
-    console.log("Square customer created:", squareData.customer);
-
     return userCredential.user;
   } catch (error) {
     console.error("Error signing in with email:", error);
@@ -129,13 +122,11 @@ export const signInWithGoogle = async (): Promise<User> => {
 
     if (user) {
       const token = await user.getIdToken();
-      const response = await fetch("/api/set-cookie", {
+      await fetch("/api/set-cookie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: token }),
       });
-      const data = await response.json();
-      console.log(data);
     }
 
     if (isNewUser) {
@@ -157,9 +148,6 @@ export const signInWithGoogle = async (): Promise<User> => {
       if (!squareRes.ok) {
         throw new Error("Failed to create Square customer");
       }
-
-      const squareData = await squareRes.json();
-      console.log("Square customer created:", squareData.customer);
     } else {
       console.log("Existing user. Signing in without creating a new customer.");
     }

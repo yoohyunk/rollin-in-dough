@@ -18,7 +18,6 @@ export default function Header() {
   useEffect(() => {
     const check = async () => {
       auth.onAuthStateChanged((user) => {
-        console.log("User is signed in:", user);
         setIsAuth(!!user);
       });
     };

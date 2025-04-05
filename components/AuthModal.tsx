@@ -72,16 +72,9 @@ export default function AuthModal() {
     }
     try {
       if (currentForm === "login") {
-        const user = await signInWithEmail(email, password);
-        console.log("User signed in:", user);
+        await signInWithEmail(email, password);
       } else if (currentForm === "signup") {
-        const user = await signUpWithEmail(
-          firstName,
-          lastName,
-          email,
-          password
-        );
-        console.log("User signed up:", user);
+        await signUpWithEmail(firstName, lastName, email, password);
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

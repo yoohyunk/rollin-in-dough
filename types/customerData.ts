@@ -20,3 +20,43 @@ export interface UpdateCustomerRequestBody {
   phone_number?: string;
   address?: Address;
 }
+
+export interface CatalogItem {
+  id: string;
+  type: string;
+  imageData?: { url: string };
+  itemData?: {
+    name: string;
+    description: string;
+    imageIds: string[];
+    variations: {
+      id: string;
+      itemVariationData?: {
+        priceMoney?: {
+          amount: number;
+          currency: string;
+        };
+      };
+    }[];
+  };
+}
+
+export interface CartItem {
+  product: {
+    id: string;
+    variationId: string;
+  };
+  quantity: number;
+}
+
+export interface DisplayCartItem {
+  product: {
+    id: string;
+    variationId: string;
+    name: string;
+    price: number;
+    imageUrl: string;
+    description: string;
+  };
+  quantity: number;
+}

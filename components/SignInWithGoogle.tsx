@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 export default function SignInWithGoogle() {
   const handleGoogleSignIn = async () => {
     try {
-      const user = await signInWithGoogle();
-      console.log("Signed in with Google:", user);
-      // Redirect or update UI as needed
+      await signInWithGoogle();
     } catch (error) {
       console.error("Google sign in error:", error);
     }

@@ -13,10 +13,8 @@ import { getAuth } from "firebase/auth";
 interface CartItem {
   productId: string;
   variationId?: string;
-  name: string;
+
   quantity: number;
-  price: number;
-  image?: string;
 }
 
 // create
@@ -43,10 +41,8 @@ const addItemToCart = async (
       await addDoc(cartRef, {
         productId: item.productId,
         variationId: item.variationId || "",
-        name: item.name,
+
         quantity,
-        price: item.price,
-        ...(item.image && { image: item.image }),
       });
       return quantity;
     }
@@ -71,10 +67,8 @@ const getAllItemsFromCart = async (): Promise<CartItem[]> => {
     return snapshot.docs.map((doc) => ({
       productId: doc.data().productId,
       variationId: doc.data().variationId || "",
-      name: doc.data().name,
+
       quantity: doc.data().quantity,
-      price: doc.data().price,
-      image: doc.data().image || "",
     }));
   } catch (error) {
     console.error("Error loading cart:", error);
@@ -94,7 +88,6 @@ const deleteItemFromCart = async (productId: string) => {
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
       await deleteDoc(snapshot.docs[0].ref);
-      console.log("Item removed:", productId);
     }
   } catch (error) {
     console.error("Error removing item from cart:", error);
@@ -114,7 +107,6 @@ const clearCart = async () => {
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
     const deletePromises = snapshot.docs.map((d) => deleteDoc(d.ref));
     await Promise.all(deletePromises);
-    console.log("Cart cleared for user:", userId);
   } catch (error) {
     console.error("Error clearing cart:", error);
   }
@@ -173,9 +165,6 @@ const syncLocalCartWithFirestore = async (
           {
             productId: localItem.productId,
             variationId: localItem.variationId,
-            name: localItem.name,
-            price: localItem.price,
-            image: localItem.image,
           },
           localItem.quantity
         );
