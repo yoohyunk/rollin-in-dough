@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.log("Items in order:", items);
 
     const lineItems = items.map(
       (item: { quantity: number; variationId: string }) => ({
@@ -82,8 +81,6 @@ export async function POST(request: NextRequest) {
         catalogObjectId: item.variationId,
       })
     );
-
-    console.log("Line items:", lineItems);
 
     const Client = new SquareClient({
       token: process.env.SQUARE_ACCESS_TOKEN,
@@ -148,7 +145,6 @@ export async function POST(request: NextRequest) {
         buyer_phone_number: "8255613205",
       },
     };
-    console.log("Order Request:", JSON.stringify(orderRequest, null, 2));
 
     const { paymentLink } =
       await Client.checkout.paymentLinks.create(orderRequest);
@@ -172,7 +168,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating order:", error);
     if (error instanceof SquareError) {
-      console.log("Square Error:", error.errors);
       return NextResponse.json(
         { message: error.errors?.[0] || "Square Error" },
         { status: error?.statusCode }

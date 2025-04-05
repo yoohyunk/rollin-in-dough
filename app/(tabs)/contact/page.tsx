@@ -35,7 +35,6 @@ const ContactPage = () => {
     }
 
     try {
-      console.log("Sending email with EmailJS...");
       const result = await emailjs.sendForm(
         serviceId,
         templateId,

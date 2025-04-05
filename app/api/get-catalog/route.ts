@@ -1,4 +1,4 @@
-import { CookieProduct } from "@/app/cookies";
+import { CookieProduct } from "@/components/cookies";
 import { NextRequest, NextResponse } from "next/server";
 import { SquareClient, SquareEnvironment, SquareError } from "square";
 import { CatalogItem } from "@/types/customerData";
