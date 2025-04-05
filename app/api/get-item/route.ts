@@ -1,4 +1,4 @@
-import { CookieProduct } from "@/app/cookies";
+import { CookieProduct } from "@/components/cookies";
 import { NextRequest, NextResponse } from "next/server";
 import { SquareClient, SquareEnvironment, SquareError } from "square";
 import { CatalogItem } from "@/types/customerData";
@@ -15,17 +15,20 @@ export async function GET(request: NextRequest) {
 
     const objects = (await Client.catalog.batchGet({
       objectIds,
-    })) as { data: CatalogItem[] };
+      includeRelatedObjects: true,
+    })) as { objects: CatalogItem[]; relatedObjects: CatalogItem[] };
 
     const replacer = (key: string, value: unknown): unknown =>
       typeof value === "bigint" ? value.toString() : value;
 
-    const items = objects.data.filter(
+    const items = objects.objects.filter(
       (obj: { id: string; type?: string }) => obj.type === "ITEM"
     );
-    const images = objects.data.filter(
+
+    const images = objects.relatedObjects.filter(
       (obj: { id: string; type?: string }) => obj.type === "IMAGE"
     );
+
     const imageDict = images.reduce(
       (
         acc: Record<string, string>,
@@ -59,6 +62,7 @@ export async function GET(request: NextRequest) {
           price = variation.itemVariationData.priceMoney.amount;
         }
       }
+
       return {
         id: item.id,
         variationId: item.itemData?.variations[0].id || "",
@@ -76,6 +80,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("Error fetching items:", error);
     if (error instanceof SquareError) {
       return NextResponse.json(
         { message: error.errors?.[0]?.detail || "Square Error" },

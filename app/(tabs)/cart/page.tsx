@@ -24,13 +24,13 @@ interface PastOrder {
 }
 
 const CartPage: React.FC = () => {
-  const { cartItems, updateQuantity, clearCart } = useCart();
+  const { cartItems, displayCart, updateQuantity, clearCart } = useCart();
   const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const router = useRouter();
 
   const calculateTotal = () => {
-    return cartItems
+    return displayCart
       .reduce((total, item) => total + item.product.price * item.quantity, 0)
       .toFixed(2);
   };
@@ -49,7 +49,7 @@ const CartPage: React.FC = () => {
     const res = await fetch("/api/create-order", {
       method: "POST",
       body: JSON.stringify({
-        items: cartItems.map((item) => ({
+        items: displayCart.map((item) => ({
           id: item.product.id,
           variationId: item.product.variationId,
           name: item.product.name,
@@ -78,7 +78,7 @@ const CartPage: React.FC = () => {
       date: new Date().toISOString(),
       total: parseFloat(calculateTotal()),
       status: "Processing",
-      items: cartItems.map((item) => ({
+      items: displayCart.map((item) => ({
         id: item.product.id,
         variationId: item.product.variationId,
         name: item.product.name,
@@ -106,7 +106,7 @@ const CartPage: React.FC = () => {
           {cartItems.length > 0 ? (
             <>
               <div className="space-y-6">
-                {cartItems.map((item, index) => (
+                {displayCart.map((item, index) => (
                   <div
                     key={`${item.product.id}-${index}`}
                     className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300"

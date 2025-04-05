@@ -1,13 +1,13 @@
 // MenuPage.tsx
 "use client";
-import React, { useState, useEffect } from "react";
-import CookieCard, { CookieProduct } from "../../cookies";
+import React, { useState, useEffect, useMemo } from "react";
+import CookieCard, { CookieProduct } from "../../../components/cookies";
 import { useCart } from "@/app/Context/CartContext"; // Adjust the import path as needed
 
 export default function MenuPage() {
   const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { cartItems, addToCart, updateQuantity } = useCart();
+  const { cartItems, displayCart, addToCart, updateQuantity } = useCart();
 
   useEffect(() => {
     const fetchCatalogItems = async () => {
@@ -17,7 +17,6 @@ export default function MenuPage() {
           headers: { "Content-Type": "application/json" },
         });
         const data = await res.json();
-        console.log("Catalog response:", data);
         setCookieProducts(data);
       } catch (error) {
         console.error("Error fetching catalog items:", error);
@@ -28,6 +27,17 @@ export default function MenuPage() {
 
     fetchCatalogItems();
   }, []);
+  const totalPrice = useMemo(() => {
+    return cartItems.reduce((total, cartItem) => {
+      // Find the matching detailed item from displayCart using product id
+      const detailedItem = displayCart.find(
+        (item) => item.product.id === cartItem.product.id
+      );
+      return detailedItem
+        ? total + detailedItem.product.price * cartItem.quantity
+        : total;
+    }, 0);
+  }, [cartItems, displayCart]);
 
   return (
     <main className="min-h-screen py-8">
@@ -43,7 +53,7 @@ export default function MenuPage() {
               <div className="sticky top-24 bg-white p-4 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold mb-4">Shopping Cart</h2>
                 <ul className="divide-y divide-gray-200">
-                  {cartItems.map((item, index) => (
+                  {displayCart.map((item, index) => (
                     <li
                       key={index}
                       className="py-3 flex justify-between items-center"
@@ -83,16 +93,7 @@ export default function MenuPage() {
                 </ul>
                 <div className="mt-4 flex justify-between border-t pt-4">
                   <span className="font-bold">Total:</span>
-                  <span className="font-bold">
-                    $
-                    {cartItems
-                      .reduce(
-                        (total, item) =>
-                          total + item.product.price * item.quantity,
-                        0
-                      )
-                      .toFixed(2)}
-                  </span>
+                  <span className="font-bold">${totalPrice.toFixed(2)}</span>
                 </div>
                 <button
                   className="mt-4 w-full bg-[#fc3296] text-white py-2 px-4 rounded hover:bg-[#fbdb8a] hover:text-[#fc3296] transition-colors duration-300"

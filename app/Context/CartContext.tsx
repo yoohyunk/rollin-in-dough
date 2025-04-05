@@ -1,7 +1,6 @@
 "use client";
 import React, {
   createContext,
-  useContext,
   useState,
   useEffect,
   useRef,
@@ -16,80 +15,65 @@ import {
   updateCartItemQuantity,
   clearCart as firebaseClearCart,
 } from "@/firebase/cart";
-import type { CookieProduct } from "../cookies";
+import type { CookieProduct } from "../../components/cookies";
+import { CartItem, DisplayCartItem } from "@/types/customerData";
 
-// ----------------------
-// Types and Interfaces
-// ----------------------
-export interface CartItem {
-  product: CookieProduct;
-  quantity: number;
-}
-
-export interface LocalCartItem {
-  product: {
-    id: string;
-    variationId: string;
-    name: string;
-    price: number;
-    imageUrl: string;
-    description: string;
-  };
-  quantity: number;
-}
-
-// ----------------------
-// Custom Hook: useCart
-// ----------------------
 export function useCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [displayCart, setDisplayCart] = useState<DisplayCartItem[]>([]);
   const hasLoadedCart = useRef(false);
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user?.uid || null;
 
-  // Load cart from Firestore (if logged in) or from localStorage
-  const loadCart = async () => {
-    if (userId) {
-      const cart = await getAllItemsFromCart();
-      const formattedCart = cart.map((item) => ({
+  useEffect(() => {
+    let cartItemIds: string[] = [];
+    let localCartItems: CartItem[] = [];
+
+    const loadCart = async () => {
+      if (userId) {
+        const cart = await getAllItemsFromCart();
+        cartItemIds = cart.map((item) => item.productId);
+      } else {
+        const localCart = localStorage.getItem("localCart");
+        if (localCart) {
+          try {
+            const parsed: CartItem[] = JSON.parse(localCart);
+            localCartItems = parsed; // store in local variable
+            setCartItems(parsed);
+            cartItemIds = parsed.map((item) => item.product.id);
+          } catch (e) {
+            console.error("Failed to parse local cart:", e);
+          }
+        }
+      }
+
+      const response = await fetch(
+        `/api/get-item?objectIds=${cartItemIds.join(",")}`,
+        {
+          method: "GET",
+        }
+      );
+
+      const items = await response.json();
+      const formattedCart = items.map((item: CookieProduct) => ({
         product: {
-          id: item.productId,
+          id: item.id,
           variationId: item.variationId || "",
           name: item.name,
           price: item.price,
-          imageUrl: item.image || "",
-          description: "",
+          imageUrl: item.imageUrl,
+          description: item.description,
         },
-        quantity: item.quantity,
+        quantity:
+          localCartItems.find((cartItem) => cartItem.product.id === item.id)
+            ?.quantity || 1,
       }));
-      setCartItems(formattedCart);
-    } else {
-      const localCart = localStorage.getItem("localCart");
-      if (localCart) {
-        try {
-          const parsed: LocalCartItem[] = JSON.parse(localCart);
-          const restoredCart = parsed.map((item) => ({
-            product: {
-              id: item.product.id,
-              variationId: item.product.variationId || "",
-              name: item.product.name,
-              price: item.product.price,
-              imageUrl: item.product.imageUrl || "",
-              description: "",
-            },
-            quantity: item.quantity,
-          }));
-          setCartItems(restoredCart);
-        } catch (e) {
-          console.error("Failed to parse local cart:", e);
-        }
-      }
-    }
-    hasLoadedCart.current = true;
-  };
 
-  useEffect(() => {
+      setDisplayCart(formattedCart);
+      hasLoadedCart.current = true;
+    };
+
     loadCart();
   }, [userId]);
 
@@ -102,9 +86,6 @@ export function useCart() {
           product: {
             id: item.product.id,
             variationId: item.product.variationId || "",
-            name: item.product.name,
-            price: item.product.price,
-            imageUrl: item.product.imageUrl,
           },
           quantity: item.quantity,
         }));
@@ -120,14 +101,11 @@ export function useCart() {
       const localCart = localStorage.getItem("localCart");
       if (!localCart) return;
       try {
-        const parsed: LocalCartItem[] = JSON.parse(localCart);
+        const parsed: CartItem[] = JSON.parse(localCart);
         const cartItemsToSync = parsed.map((item) => ({
           productId: item.product.id,
           variationId: item.product.variationId || "",
-          name: item.product.name,
           quantity: item.quantity,
-          price: item.product.price,
-          image: item.product.imageUrl || "",
         }));
         await syncLocalCartWithFirestore(cartItemsToSync);
         localStorage.removeItem("localCart");
@@ -157,16 +135,42 @@ export function useCart() {
       const newQuantity = updatedCart.find(
         (item) => item.product.id === product.id
       )!.quantity;
-      await addItemToCart(
-        {
-          productId: product.id,
-          variationId: product.variationId,
-          name: product.name,
-          price: product.price,
-          image: product.imageUrl,
-        },
-        newQuantity
-      );
+      const itemToAdd = {
+        productId: product.id,
+        variationId: product.variationId,
+      };
+      await addItemToCart(itemToAdd, newQuantity);
+    } else {
+      const localCart = localStorage.getItem("localCart");
+      if (localCart) {
+        try {
+          const parsed: CartItem[] = JSON.parse(localCart);
+          const existingLocalIndex = parsed.findIndex(
+            (item) => item.product.id === product.id
+          );
+          if (existingLocalIndex >= 0) {
+            parsed[existingLocalIndex].quantity += quantity;
+          } else {
+            parsed.push({
+              product: { id: product.id, variationId: product.variationId },
+              quantity,
+            });
+          }
+          localStorage.setItem("localCart", JSON.stringify(parsed));
+        } catch (e) {
+          console.error("Failed to parse local cart:", e);
+        }
+      } else {
+        localStorage.setItem(
+          "localCart",
+          JSON.stringify([
+            {
+              product: { id: product.id, variationId: product.variationId },
+              quantity,
+            },
+          ])
+        );
+      }
     }
   };
 
@@ -193,9 +197,6 @@ export function useCart() {
     }
   };
 
-  // ----------------------
-  // UPDATED: Clear cart function
-  // ----------------------
   const clearCartLocal = async () => {
     if (userId) {
       await firebaseClearCart();
@@ -207,17 +208,16 @@ export function useCart() {
 
   return {
     cartItems,
+    displayCart,
     addToCart,
     updateQuantity,
     clearCart: clearCartLocal,
   };
 }
 
-// ----------------------
-// Cart Context Setup
-// ----------------------
 interface CartContextValue {
   cartItems: CartItem[];
+  displayCart: DisplayCartItem[];
   addToCart: (product: CookieProduct, quantity: number) => Promise<void>;
   updateQuantity: (productId: string, newQuantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -228,20 +228,21 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { cartItems, addToCart, updateQuantity, clearCart } = useCart();
+  const { cartItems, displayCart, addToCart, updateQuantity, clearCart } =
+    useCart();
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, updateQuantity, clearCart }}
+      value={{ cartItems, displayCart, addToCart, updateQuantity, clearCart }}
     >
       {children}
     </CartContext.Provider>
   );
 };
 
-export const useCartContext = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCartContext must be used within a CartProvider");
-  }
-  return context;
-};
+// export const useCartContext = () => {
+//   const context = useContext(CartContext);
+//   if (!context) {
+//     throw new Error("useCartContext must be used within a CartProvider");
+//   }
+//   return context;
+// };
