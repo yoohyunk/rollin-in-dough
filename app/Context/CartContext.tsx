@@ -18,6 +18,8 @@ import {
 import type { CookieProduct } from "../../components/cookies";
 import { CartItem, DisplayCartItem } from "@/types/customerData";
 
+type GetItemResponse = { items: CookieProduct[] };
+
 export function useCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [displayCart, setDisplayCart] = useState<DisplayCartItem[]>([]);
@@ -28,18 +30,22 @@ export function useCart() {
 
   useEffect(() => {
     let cartItemIds: string[] = [];
-    let localCartItems: CartItem[] = [];
+    let loadedCartItems: CartItem[] = [];
 
     const loadCart = async () => {
       if (userId) {
         const cart = await getAllItemsFromCart();
-        cartItemIds = cart.map((item) => item.productId);
+        loadedCartItems = cart;
+        cartItemIds = cart.map((item) => item.product.id);
+        setCartItems(cart);
+
+        console.log("Cart item ids from Firestore:", cartItemIds);
       } else {
         const localCart = localStorage.getItem("localCart");
         if (localCart) {
           try {
             const parsed: CartItem[] = JSON.parse(localCart);
-            localCartItems = parsed; // store in local variable
+            loadedCartItems = parsed;
             setCartItems(parsed);
             cartItemIds = parsed.map((item) => item.product.id);
           } catch (e) {
@@ -55,21 +61,26 @@ export function useCart() {
         }
       );
 
-      const items = await response.json();
-      const formattedCart = items.map((item: CookieProduct) => ({
-        product: {
-          id: item.id,
-          variationId: item.variationId || "",
-          name: item.name,
-          price: item.price,
-          imageUrl: item.imageUrl,
-          description: item.description,
-        },
-        quantity:
-          localCartItems.find((cartItem) => cartItem.product.id === item.id)
-            ?.quantity || 1,
-      }));
-
+      const data = (await response.json()) as GetItemResponse;
+      const { items } = data;
+      console.log("Items from API:", items);
+      const formattedCart = items.map((item: CookieProduct) => {
+        const matchingCartItem = loadedCartItems.find(
+          // <--- Use loadedCartItems instead of cartItems
+          (cartItem) => cartItem.product.id === item.id
+        );
+        return {
+          product: {
+            id: item.id,
+            variationId: item.variationId || "",
+            name: item.name,
+            price: item.price,
+            imageUrl: item.imageUrl,
+            description: item.description,
+          },
+          quantity: matchingCartItem ? matchingCartItem.quantity : 1,
+        };
+      });
       setDisplayCart(formattedCart);
       hasLoadedCart.current = true;
     };
@@ -102,12 +113,12 @@ export function useCart() {
       if (!localCart) return;
       try {
         const parsed: CartItem[] = JSON.parse(localCart);
-        const cartItemsToSync = parsed.map((item) => ({
-          productId: item.product.id,
-          variationId: item.product.variationId || "",
-          quantity: item.quantity,
-        }));
-        await syncLocalCartWithFirestore(cartItemsToSync);
+        // const cartItemsToSync = parsed.map((item) => ({
+        //   productId: item.product.id,
+        //   variationId: item.product.variationId || "",
+        //   quantity: item.quantity,
+        // }));
+        await syncLocalCartWithFirestore(parsed);
         localStorage.removeItem("localCart");
       } catch (err) {
         console.error("Error syncing local cart after login:", err);
@@ -136,10 +147,14 @@ export function useCart() {
         (item) => item.product.id === product.id
       )!.quantity;
       const itemToAdd = {
-        productId: product.id,
-        variationId: product.variationId,
+        product: {
+          id: product.id,
+          variationId: product.variationId,
+        },
+        quantity: newQuantity,
       };
-      await addItemToCart(itemToAdd, newQuantity);
+
+      await addItemToCart(itemToAdd);
     } else {
       const localCart = localStorage.getItem("localCart");
       if (localCart) {

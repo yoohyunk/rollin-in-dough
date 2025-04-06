@@ -10,41 +10,33 @@ import {
 import { db } from "@/firebase/firebaseConfig";
 import { getAuth } from "firebase/auth";
 
-interface CartItem {
-  productId: string;
-  variationId?: string;
-
-  quantity: number;
-}
+import type { CartItem } from "@/types/customerData";
 
 // create
-const addItemToCart = async (
-  item: Omit<CartItem, "quantity">,
-  quantity: number
-): Promise<number | null> => {
+const addItemToCart = async (cartItem: CartItem): Promise<number | null> => {
   try {
     const auth = getAuth();
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error("User not authenticated");
 
     const cartRef = collection(db, "users", userId, "cart");
-    const q = query(cartRef, where("productId", "==", item.productId));
+    const q = query(cartRef, where("productId", "==", cartItem.product.id));
     const snapshot = await getDocs(q);
 
     if (!snapshot.empty) {
       const docRef = snapshot.docs[0].ref;
       await updateDoc(docRef, {
-        quantity,
+        quantity: cartItem.quantity,
       });
-      return quantity;
+      return cartItem.quantity;
     } else {
       await addDoc(cartRef, {
-        productId: item.productId,
-        variationId: item.variationId || "",
+        productId: cartItem.product.id,
+        variationId: cartItem.product.variationId || "",
 
-        quantity,
+        quantity: cartItem.quantity,
       });
-      return quantity;
+      return cartItem.quantity;
     }
   } catch (err) {
     console.error("Error adding to cart:", err);
@@ -64,12 +56,16 @@ const getAllItemsFromCart = async (): Promise<CartItem[]> => {
     }
 
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
-    return snapshot.docs.map((doc) => ({
-      productId: doc.data().productId,
-      variationId: doc.data().variationId || "",
-
+    console.log("Cart items /////////////:", snapshot.docs);
+    const mappedItems = snapshot.docs.map((doc) => ({
+      product: {
+        id: doc.data().productId,
+        variationId: doc.data().variationId || "",
+      },
       quantity: doc.data().quantity,
     }));
+    console.log("Mapped items firestore:", mappedItems);
+    return mappedItems;
   } catch (error) {
     console.error("Error loading cart:", error);
     return [];
@@ -152,22 +148,16 @@ const syncLocalCartWithFirestore = async (
 
     for (const localItem of localItems) {
       const existingItem = firestoreItems.find(
-        (item) => item.productId === localItem.productId
+        (item) => item.product.id === localItem.product.id
       );
 
       if (existingItem) {
         await updateCartItemQuantity(
-          existingItem.productId,
+          existingItem.product.id,
           existingItem.quantity + localItem.quantity
         );
       } else {
-        await addItemToCart(
-          {
-            productId: localItem.productId,
-            variationId: localItem.variationId,
-          },
-          localItem.quantity
-        );
+        await addItemToCart(localItem);
       }
     }
 
