@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface Cookie {
   id: number;
@@ -57,6 +57,19 @@ export default function OrdersPage() {
       ],
     },
   ]);
+
+  useEffect(() => {
+    const fetchPastOrders = async () => {
+      await fetch("/api/get-orders", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    };
+
+    fetchPastOrders();
+  }, []);
 
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
