@@ -1,4 +1,6 @@
 "use client";
+
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface Cookie {
@@ -14,6 +16,7 @@ interface PastOrder {
 
 export default function OrdersPage() {
   const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -22,9 +25,9 @@ export default function OrdersPage() {
         if (!response.ok) {
           throw new Error("Failed to fetch orders");
         }
-        // Assume the API returns either an array or an object with an 'orders' field.
+
         const data = await response.json();
-        // For example, if your response is { orders: [...] }
+
         setPastOrders(data.orders || data);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -33,16 +36,6 @@ export default function OrdersPage() {
 
     fetchOrders();
   }, []);
-
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-
-  const toggleOrderDetails = (orderId: string) => {
-    if (expandedOrder === orderId) {
-      setExpandedOrder(null);
-    } else {
-      setExpandedOrder(orderId);
-    }
-  };
 
   return (
     <div className="max-w-2xl mx-auto pt-24 pb-80">
@@ -57,7 +50,7 @@ export default function OrdersPage() {
             >
               <div
                 className="p-4 flex justify-between items-center cursor-pointer border-l-4 border-[#fc3296]"
-                onClick={() => toggleOrderDetails(order.id)}
+                onClick={() => router.push(`/order/${order.id}`)}
               >
                 <div>
                   <p className="font-semibold">{order.id}</p>
@@ -84,22 +77,6 @@ export default function OrdersPage() {
                   </span> */}
                 </div>
               </div>
-
-              {expandedOrder === order.id && (
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
-                  <p className="font-medium mb-2">Order Items:</p>
-                  <ul className="space-y-2">
-                    {order.lineItems.map((item) => (
-                      <li key={item.name} className="flex justify-between">
-                        <span>
-                          {item.quantity}x {item.name}
-                        </span>
-                        {/* <span>${(item.price * item.quantity).toFixed(2)}</span> */}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           ))}
         </div>
