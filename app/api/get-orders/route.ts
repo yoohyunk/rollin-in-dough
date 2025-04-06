@@ -76,21 +76,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({});
     }
 
-    // const orderList = orders.map((order) => {
-    //     return {
-    //         id: order.orderId,
-    //         createdAt: order.
-    //         updatedAt: order.order.updatedAt,
-    //         lineItems: order.lineItems,
-    //         totalPrice: order.order.totalPriceMoney,
-    //         totalDiscount: order.order.totalDiscountMoney,
-    //         totalTax: order.order.totalTaxMoney,
-    //         totalServiceCharge: order.order.totalServiceChargeMoney,
-    //     }
-    // }
-    // )
-    console.log("Orders:", orders);
-    return NextResponse.json(orders);
+    const orderList = orders.map((order) => {
+      return {
+        id: order.orderId,
+        createdAt: order.created_at,
+        lineItems: order.line_items,
+      };
+    });
+    console.log("Orders:", orderList);
+    return NextResponse.json(orderList);
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(
