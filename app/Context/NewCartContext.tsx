@@ -7,6 +7,7 @@ import {
   addItemToCart,
   getAllItemsFromCart,
   updateCartItemQuantity,
+  clearCart as clearCartFirestore,
 } from "@/firebase/cart";
 
 type GetItemResponse = { items: CookieProduct[] };
@@ -121,6 +122,10 @@ export const useCart = () => {
   };
 
   const clearCart = async () => {
+    if (isLoggedIn) {
+      await clearCartFirestore();
+    }
+
     updateLocalCart([], true);
     setDisplayCartItems([]);
   };
