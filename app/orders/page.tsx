@@ -1,72 +1,31 @@
 "use client";
-import React, { useState } from "react";
 
-interface Cookie {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-interface PastOrder {
-  id: string;
-  date: string;
-  total: number;
-  status: "Delivered" | "Processing" | "Shipped";
-  items: Cookie[];
-}
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { PastOrder } from "@/types/customerData";
 
 export default function OrdersPage() {
-  const [pastOrders] = useState<PastOrder[]>([
-    {
-      id: "ORD-2023-001",
-      date: "2023-03-10",
-      total: 15.5,
-      status: "Delivered",
-      items: [
-        {
-          id: 1,
-          name: "Chocolate Chip",
-          price: 2.5,
-          quantity: 4,
-          image: "/chocolate-chip.png",
-        },
-        {
-          id: 3,
-          name: "Nutella Loaded Coissant",
-          price: 1.5,
-          quantity: 4,
-          image: "/nutella-croissant.png",
-        },
-      ],
-    },
-    {
-      id: "ORD-2023-002",
-      date: "2023-03-15",
-      total: 9.0,
-      status: "Shipped",
-      items: [
-        {
-          id: 2,
-          name: "Sugar Cookie",
-          price: 3.0,
-          quantity: 3,
-          image: "/sugar-cookie.png",
-        },
-      ],
-    },
-  ]);
+  const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);
+  const router = useRouter();
 
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("/api/get-orders", { method: "GET" });
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
 
-  const toggleOrderDetails = (orderId: string) => {
-    if (expandedOrder === orderId) {
-      setExpandedOrder(null);
-    } else {
-      setExpandedOrder(orderId);
-    }
-  };
+        const data = await response.json();
+
+        setPastOrders(data.orders || data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto pt-24 pb-80">
@@ -81,12 +40,12 @@ export default function OrdersPage() {
             >
               <div
                 className="p-4 flex justify-between items-center cursor-pointer border-l-4 border-[#fc3296]"
-                onClick={() => toggleOrderDetails(order.id)}
+                onClick={() => router.push(`/order/${order.id}`)}
               >
                 <div>
                   <p className="font-semibold">{order.id}</p>
                   <p className="text-sm text-gray-600">
-                    {new Date(order.date).toLocaleDateString("en-US", {
+                    {new Date(order.createdAt).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -94,36 +53,20 @@ export default function OrdersPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">${order.total.toFixed(2)}</p>
+                  <p className="font-semibold">${order.totalPrice.amount}</p>
                   <span
                     className={`inline-block px-2 py-1 text-xs rounded-full ${
-                      order.status === "Delivered"
+                      order.orderStatus === "Delivered"
                         ? "bg-green-100 text-green-800"
-                        : order.status === "Shipped"
+                        : order.orderStatus === "Shipped"
                           ? "bg-blue-100 text-blue-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {order.status}
+                    {order.orderStatus}
                   </span>
                 </div>
               </div>
-
-              {expandedOrder === order.id && (
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
-                  <p className="font-medium mb-2">Order Items:</p>
-                  <ul className="space-y-2">
-                    {order.items.map((item) => (
-                      <li key={item.id} className="flex justify-between">
-                        <span>
-                          {item.quantity}x {item.name}
-                        </span>
-                        <span>${(item.price * item.quantity).toFixed(2)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           ))}
         </div>

@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
           variation.itemVariationData &&
           variation.itemVariationData.priceMoney
         ) {
-          price = variation.itemVariationData.priceMoney.amount;
+          price = Number(variation.itemVariationData.priceMoney.amount) / 100;
         }
       }
 
@@ -73,9 +73,8 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return new NextResponse(JSON.stringify(mappedItems, replacer), {
+    return new NextResponse(JSON.stringify({ items: mappedItems }, replacer), {
       headers: {
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate",
         "Content-Type": "application/json",
       },
     });

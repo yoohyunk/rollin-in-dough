@@ -2,50 +2,6 @@ import { verifyIdToken } from "@/firebase/firebaseAdmin";
 import { NextRequest, NextResponse } from "next/server";
 import { SquareClient, SquareEnvironment, SquareError } from "square";
 
-// Define the CreateOrderRequest type manually if not exported by the library
-
-// type OrderData = {
-//   given_name: string;
-//   family_name: string;
-//   phone_number: string;
-//   email: string;
-//   address: {
-//     addressLine1: string;
-//     addressLine2?: string;
-//     addressLine3?: string;
-//     administrativeDistrictLevel1: string;
-//     administrativeDistrictLevel2?: string;
-//     administrativeDistrictLevel3?: string;
-//     postalCode: string;
-//     country: string;
-//   };
-//   lineItems: any[];
-//   customerId: string;
-// };
-
-// type OrderData = {
-//   order: {
-//     location_id: string;
-//     customer_id: string;
-//     line_items: {
-//       catalog_object_id: string;
-//       quantity: string;
-//     }[];
-//   };
-//   checkout_options: {
-//     allow_tipping: boolean;
-//     ask_for_shipping_address: boolean;
-//     enable_coupon: boolean;
-//     shipping_fee?: {
-//       charge: {
-//         amount: number;
-//         currency: string;
-//       };
-//       name: string;
-//     };
-//   };
-// };
-
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value;

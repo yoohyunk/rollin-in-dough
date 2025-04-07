@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           variation.itemVariationData &&
           variation.itemVariationData.priceMoney
         ) {
-          price = variation.itemVariationData.priceMoney.amount;
+          price = Number(variation.itemVariationData.priceMoney.amount) / 100;
         }
       }
       return {

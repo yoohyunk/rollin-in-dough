@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = ["/orders", "/profile", "/payment"];
+const PROTECTED_PATHS = ["/orders", "/profile", "/order"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token");

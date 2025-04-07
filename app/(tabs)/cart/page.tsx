@@ -1,36 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
-import { useCart } from "@/app/Context/CartContext"; // Adjust the import path as needed
-
-// Define types for your past orders and cookies (you can also reuse your CookieProduct type if available)
-interface Cookie {
-  id: string;
-  variationId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-interface PastOrder {
-  id: string;
-  date: string;
-  total: number;
-  status: "Delivered" | "Processing" | "Shipped";
-  items: Cookie[];
-}
+import { useCart } from "@/app/Context/NewCartContext";
 
 const CartPage: React.FC = () => {
-  const { cartItems, displayCart, updateQuantity, clearCart } = useCart();
-  const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const { cart, updateCart, clearCart } = useCart();
   const router = useRouter();
 
   const calculateTotal = () => {
-    return displayCart
+    return cart
       .reduce((total, item) => total + item.product.price * item.quantity, 0)
       .toFixed(2);
   };
@@ -42,14 +22,14 @@ const CartPage: React.FC = () => {
       alert("Please log in to place an order.");
       return;
     }
-    if (cartItems.length === 0) {
+    if (cart.length === 0) {
       alert("Your cart is empty.");
       return;
     }
     const res = await fetch("/api/create-order", {
       method: "POST",
       body: JSON.stringify({
-        items: displayCart.map((item) => ({
+        items: cart.map((item) => ({
           id: item.product.id,
           variationId: item.product.variationId,
           name: item.product.name,
@@ -67,33 +47,11 @@ const CartPage: React.FC = () => {
     }
     const reDirectUrl = data.order.url;
     if (reDirectUrl) {
-      // Clear the cart using the custom hook
       await clearCart();
       router.push(reDirectUrl);
     }
 
-    // Optionally, create a past order record locally
-    const order: PastOrder = {
-      id: `ORD-${Date.now()}`,
-      date: new Date().toISOString(),
-      total: parseFloat(calculateTotal()),
-      status: "Processing",
-      items: displayCart.map((item) => ({
-        id: item.product.id,
-        variationId: item.product.variationId,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-        image: item.product.imageUrl,
-      })),
-    };
-
-    setPastOrders((prev) => [...prev, order]);
     alert("Order placed successfully!");
-  };
-
-  const toggleOrderDetails = (orderId: string) => {
-    setExpandedOrder((prev) => (prev === orderId ? null : orderId));
   };
 
   return (
@@ -103,10 +61,10 @@ const CartPage: React.FC = () => {
 
         {/* Cart Section */}
         <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md mb-10">
-          {cartItems.length > 0 ? (
+          {cart.length > 0 ? (
             <>
               <div className="space-y-6">
-                {displayCart.map((item, index) => (
+                {cart.map((item, index) => (
                   <div
                     key={`${item.product.id}-${index}`}
                     className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300"
@@ -126,24 +84,20 @@ const CartPage: React.FC = () => {
                         </h2>
                         <div className="flex items-center mt-2 space-x-2">
                           <button
-                            onClick={() => updateQuantity(item.product.id, 0)}
+                            onClick={() => updateCart(0, item)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             ✕
                           </button>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.quantity - 1)
-                            }
+                            onClick={() => updateCart(item.quantity - 1, item)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             -
                           </button>
                           <span>{item.quantity}</span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.quantity + 1)
-                            }
+                            onClick={() => updateCart(item.quantity + 1, item)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             +
@@ -180,72 +134,6 @@ const CartPage: React.FC = () => {
               >
                 Continue Shopping
               </button>
-            </div>
-          )}
-        </div>
-
-        {/* Past Orders Section */}
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6">Past Orders</h2>
-
-          {pastOrders.length > 0 ? (
-            <div className="space-y-4">
-              {pastOrders.map((order) => (
-                <div key={order.id} className="bg-white rounded-lg shadow-md">
-                  <div
-                    className="p-4 flex justify-between items-center cursor-pointer border-l-4 border-[#fc3296]"
-                    onClick={() => toggleOrderDetails(order.id)}
-                  >
-                    <div>
-                      <p className="font-semibold">{order.id}</p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(order.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">${order.total.toFixed(2)}</p>
-                      <span
-                        className={`inline-block px-2 py-1 text-xs rounded-full ${
-                          order.status === "Delivered"
-                            ? "bg-green-100 text-green-800"
-                            : order.status === "Shipped"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </div>
-                  </div>
-
-                  {expandedOrder === order.id && (
-                    <div className="p-4 bg-gray-50 border-t border-gray-200">
-                      <p className="font-medium mb-2">Order Items:</p>
-                      <ul className="space-y-2">
-                        {order.items.map((item, index) => (
-                          <li
-                            key={`${item.id}-${index}`}
-                            className="flex justify-between"
-                          >
-                            <span>
-                              {item.quantity}x {item.name}
-                            </span>
-                            <span>
-                              ${(item.price * item.quantity).toFixed(2)}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 bg-white rounded-lg shadow-md">
-              <p className="text-gray-500">
-                You don&apos;t have any past orders
-              </p>
             </div>
           )}
         </div>

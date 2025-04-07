@@ -38,13 +38,6 @@ function convertAllToStrings(obj: unknown): unknown {
 
 export async function POST(request: NextRequest) {
   try {
-    // const token = request.headers.get("Authentication");
-    // if (!token) {
-    //   return NextResponse.json(
-    //     { message: "Unauthorized, no token found" },
-    //     { status: 401 }
-    //   );
-    // }
     const token = request.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json(
@@ -53,7 +46,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // todo: handle expired token
     const decodedToken = await verifyIdToken(token);
 
     if (!decodedToken) {
@@ -85,8 +77,6 @@ export async function POST(request: NextRequest) {
           emailAddress: {
             exact: email,
           },
-          // Alternatively, if using external_id:
-          // referenceId: { exact: external_id }
         },
       },
     });

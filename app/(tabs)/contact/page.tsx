@@ -35,14 +35,13 @@ const ContactPage = () => {
     }
 
     try {
-      const result = await emailjs.sendForm(
+      await emailjs.sendForm(
         serviceId,
         templateId,
         form, // Use the stored reference instead of e.currentTarget
         publicKey
       );
 
-      console.log("Email sent successfully:", result.text);
       alert("Message sent successfully!");
       form.reset(); // Use the stored reference
     } catch (error) {
