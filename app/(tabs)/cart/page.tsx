@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
-import { useCart } from "@/app/Context/CartContext"; // Adjust the import path as needed
+import { useCart } from "@/app/Context/NewCartContext"; // Adjust the import path as needed
 
 // Define types for your past orders and cookies (you can also reuse your CookieProduct type if available)
 interface Cookie {
@@ -24,13 +24,13 @@ interface PastOrder {
 }
 
 const CartPage: React.FC = () => {
-  const { cartItems, displayCart, updateQuantity, clearCart } = useCart();
+  const { cart, updateCart, clearCart } = useCart();
   const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const router = useRouter();
 
   const calculateTotal = () => {
-    return displayCart
+    return cart
       .reduce((total, item) => total + item.product.price * item.quantity, 0)
       .toFixed(2);
   };
@@ -42,14 +42,14 @@ const CartPage: React.FC = () => {
       alert("Please log in to place an order.");
       return;
     }
-    if (cartItems.length === 0) {
+    if (cart.length === 0) {
       alert("Your cart is empty.");
       return;
     }
     const res = await fetch("/api/create-order", {
       method: "POST",
       body: JSON.stringify({
-        items: displayCart.map((item) => ({
+        items: cart.map((item) => ({
           id: item.product.id,
           variationId: item.product.variationId,
           name: item.product.name,
@@ -78,7 +78,7 @@ const CartPage: React.FC = () => {
       date: new Date().toISOString(),
       total: parseFloat(calculateTotal()),
       status: "Processing",
-      items: displayCart.map((item) => ({
+      items: cart.map((item) => ({
         id: item.product.id,
         variationId: item.product.variationId,
         name: item.product.name,
@@ -103,10 +103,10 @@ const CartPage: React.FC = () => {
 
         {/* Cart Section */}
         <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md mb-10">
-          {cartItems.length > 0 ? (
+          {cart.length > 0 ? (
             <>
               <div className="space-y-6">
-                {displayCart.map((item, index) => (
+                {cart.map((item, index) => (
                   <div
                     key={`${item.product.id}-${index}`}
                     className="flex justify-between items-center p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-[#fbdb8a] hover:border-[#fc3296] transition-all duration-300"
@@ -126,24 +126,20 @@ const CartPage: React.FC = () => {
                         </h2>
                         <div className="flex items-center mt-2 space-x-2">
                           <button
-                            onClick={() => updateQuantity(item.product.id, 0)}
+                            onClick={() => updateCart(0, item)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             ✕
                           </button>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.quantity - 1)
-                            }
+                            onClick={() => updateCart(item.quantity - 1, item)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             -
                           </button>
                           <span>{item.quantity}</span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.quantity + 1)
-                            }
+                            onClick={() => updateCart(item.quantity + 1, item)}
                             className="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300"
                           >
                             +

@@ -34,12 +34,34 @@ export function useCart() {
 
     const loadCart = async () => {
       if (userId) {
+        const syncCartAfterLogin = async () => {
+          if (!userId) return;
+          const localCart = localStorage.getItem("localCart");
+          if (!localCart) return;
+          try {
+            const parsed: CartItem[] = JSON.parse(localCart);
+            // const cartItemsToSync = parsed.map((item) => ({
+            //   productId: item.product.id,
+            //   variationId: item.product.variationId || "",
+            //   quantity: item.quantity,
+            // }));
+            await syncLocalCartWithFirestore(parsed);
+            // localStorage.removeItem("localCart");
+          } catch (err) {
+            console.error("Error syncing local cart after login:", err);
+          }
+        };
+
+        await syncCartAfterLogin();
         const cart = await getAllItemsFromCart();
+        console.log("FS cart", cart);
         loadedCartItems = cart;
         cartItemIds = cart.map((item) => item.product.id);
-        setCartItems(cart);
 
         console.log("Cart item ids from Firestore:", cartItemIds);
+        // also update with local cart data
+        // loadedCartItems[0].quantity = localSorage[0] ? localSorage[0].quantity : loadedCartItems[0].quantity
+        // setCart(loadedCartItem)
       } else {
         const localCart = localStorage.getItem("localCart");
         if (localCart) {
@@ -50,6 +72,7 @@ export function useCart() {
             cartItemIds = parsed.map((item) => item.product.id);
           } catch (e) {
             console.error("Failed to parse local cart:", e);
+            return;
           }
         }
       }
@@ -60,10 +83,8 @@ export function useCart() {
           method: "GET",
         }
       );
-
       const data = (await response.json()) as GetItemResponse;
       const { items } = data;
-      console.log("Items from API:", items);
       const formattedCart = items.map((item: CookieProduct) => {
         const matchingCartItem = loadedCartItems.find(
           // <--- Use loadedCartItems instead of cartItems
@@ -92,7 +113,7 @@ export function useCart() {
   // This effect updates localStorage only if there are items in the cart.
   useEffect(() => {
     if (!userId && hasLoadedCart.current) {
-      if (cartItems.length > 0) {
+      if (cartItems.length >= 0) {
         const simplifiedCart = cartItems.map((item) => ({
           product: {
             id: item.product.id,
@@ -119,7 +140,7 @@ export function useCart() {
         //   quantity: item.quantity,
         // }));
         await syncLocalCartWithFirestore(parsed);
-        localStorage.removeItem("localCart");
+        // localStorage.removeItem("localCart");
       } catch (err) {
         console.error("Error syncing local cart after login:", err);
       }
@@ -137,8 +158,33 @@ export function useCart() {
 
     if (existingIndex >= 0) {
       updatedCart[existingIndex].quantity += quantity;
+      setDisplayCart((prev) =>
+        prev.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      );
     } else {
       updatedCart.push({ product, quantity });
+      const response = await fetch(`/api/get-item?objectIds=${product.id}`, {
+        method: "GET",
+      });
+      const data = (await response.json()) as GetItemResponse;
+      const { items } = data;
+      const item = items[0];
+      const formattedCart = {
+        product: {
+          id: item.id,
+          variationId: item.variationId || "",
+          name: item.name,
+          price: item.price,
+          imageUrl: item.imageUrl,
+          description: item.description,
+        },
+        quantity: quantity,
+      };
+      setDisplayCart([...displayCart, formattedCart]);
     }
     setCartItems(updatedCart);
 
@@ -191,9 +237,11 @@ export function useCart() {
 
   // Update the quantity or remove an item if quantity is zero
   const updateQuantity = async (productId: string, newQuantity: number) => {
+    alert(`${productId} ${newQuantity}`);
     const existingIndex = cartItems.findIndex(
       (item) => item.product.id === productId
     );
+
     if (existingIndex < 0) return;
 
     if (newQuantity === 0) {
@@ -202,13 +250,36 @@ export function useCart() {
       );
       if (confirmed) {
         setCartItems(cartItems.filter((item) => item.product.id !== productId));
-        if (userId) await deleteItemFromCart(productId);
+        if (userId) {
+          await deleteItemFromCart(productId);
+        }
+        setDisplayCart((prev) =>
+          prev.filter((item) => item.product.id !== productId)
+        );
+        // const localStorageCart = JSON.parse(localStorage.get("localCart"));
+        // window.localStorage.set(
+        //   "localCart",
+        //   JSON.stringify(
+        //     localStorageCart.filter(
+        //       (item: CartItem) => item.product.id !== productId
+        //     )
+        //   )
+        // );
       }
     } else {
-      const updatedCart = [...cartItems];
+      const updatedCart = [...cartItems]; // copy by value = `updatedCart` has different memory address than `cartItems`
       updatedCart[existingIndex].quantity = newQuantity;
       setCartItems(updatedCart);
-      if (userId) await updateCartItemQuantity(productId, newQuantity);
+      if (userId) {
+        await updateCartItemQuantity(productId, newQuantity);
+      }
+      setDisplayCart((prev) =>
+        prev.map((item) =>
+          item.product.id === productId
+            ? { ...item, quantity: newQuantity }
+            : item
+        )
+      );
     }
   };
 
@@ -253,11 +324,3 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     </CartContext.Provider>
   );
 };
-
-// export const useCartContext = () => {
-//   const context = useContext(CartContext);
-//   if (!context) {
-//     throw new Error("useCartContext must be used within a CartProvider");
-//   }
-//   return context;
-// };

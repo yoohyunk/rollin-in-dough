@@ -132,7 +132,7 @@ const updateCartItemQuantity = async (
 // Ssync
 const syncLocalCartWithFirestore = async (
   localItems: CartItem[]
-): Promise<CartItem[]> => {
+): Promise<void> => {
   try {
     const auth = getAuth();
     const userId = auth.currentUser?.uid;
@@ -141,9 +141,9 @@ const syncLocalCartWithFirestore = async (
         "User ID is undefined. Please ensure the user is authenticated."
       );
     }
-    if (!localItems.length) {
-      return getAllItemsFromCart();
-    }
+    // if (!localItems.length) {
+    //   return getAllItemsFromCart();
+    // }
     const firestoreItems = await getAllItemsFromCart();
 
     for (const localItem of localItems) {
@@ -154,14 +154,12 @@ const syncLocalCartWithFirestore = async (
       if (existingItem) {
         await updateCartItemQuantity(
           existingItem.product.id,
-          existingItem.quantity + localItem.quantity
+          existingItem.quantity
         );
       } else {
         await addItemToCart(localItem);
       }
     }
-
-    return getAllItemsFromCart();
   } catch (error) {
     console.error("Error syncing carts:", error);
     throw error;
