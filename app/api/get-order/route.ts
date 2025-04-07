@@ -6,7 +6,6 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get("orderId");
-    console.log("orderId:", orderId);
     if (!orderId) {
       return NextResponse.json(
         { message: "Order ID is required" },
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = request.cookies.get("token")?.value;
-    console.log("token:", token);
+
     if (!token) {
       return NextResponse.json(
         { message: "Unauthorized, no token found" },
@@ -23,7 +22,7 @@ export async function GET(request: NextRequest) {
       );
     }
     const decodedToken = await verifyIdToken(token);
-    console.log("decodedToken:", decodedToken);
+
     if (!decodedToken) {
       return NextResponse.json(
         { message: "Unauthorized", error: "Invalid token" },
@@ -43,26 +42,41 @@ export async function GET(request: NextRequest) {
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
-    console.log("Order:", order);
+
     const lineItems = order.lineItems?.map((item) => ({
       quantity: item.quantity,
       catalogObjectId: item.catalogObjectId,
-      basePriceMoney: item.basePriceMoney,
+      basePriceMoney: {
+        amount: Number(item.basePriceMoney?.amount) / 100,
+        currency: item.basePriceMoney?.currency,
+      },
       name: item.name,
       imageUrl: "",
     }));
     const serviceCharges = order.serviceCharges?.map((charge) => ({
       name: charge.name,
-      amountMoney: charge.amountMoney,
-      totalMoney: charge.totalMoney,
+      amountMoney: {
+        amount: Number(charge.amountMoney?.amount) / 100,
+        currency: charge.amountMoney?.currency,
+      },
+      totalMoney: {
+        amount: Number(charge.totalMoney?.amount) / 100,
+        currency: charge.totalMoney?.currency,
+      },
     }));
     const orderDetails = {
       orderId: order.id,
       createdAt: order.createdAt,
       orderStatus: order.state,
       lineItems: lineItems,
-      totalPrice: order.totalMoney,
-      totalTax: order.totalTaxMoney,
+      totalPrice: {
+        amount: Number(order.totalMoney?.amount) / 100,
+        currency: order.totalMoney?.currency,
+      },
+      totalTax: {
+        amount: Number(order.totalTaxMoney?.amount) / 100,
+        currency: order.totalTaxMoney?.currency,
+      },
       serviceCharges: serviceCharges,
     };
 
@@ -86,8 +100,6 @@ export async function GET(request: NextRequest) {
         .map((item) => item.imageData?.url) as string[];
 
       item.imageUrl = relatedImgURLs.length > 0 ? relatedImgURLs[0] : "";
-
-      console.log("LINEITEMS", item, relatedImgURLs);
     }
 
     const replacer = (_: string, value: unknown) =>
@@ -102,7 +114,6 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.log("Error in GET /api/get-order:", error);
     console.error("Error in GET /api/get-order:", error);
     return NextResponse.json(
       { message: "Internal Server Error", error },

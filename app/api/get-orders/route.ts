@@ -87,7 +87,10 @@ export async function GET(request: NextRequest) {
         createdAt: order.createdAt,
         lineItems: order.lineItems,
         orderStatus: order.state,
-        totalPrice: order.totalMoney,
+        totalPrice: {
+          amount: Number(order.totalMoney?.amount) / 100,
+          currency: Number(order.totalMoney?.currency) / 100,
+        },
       };
     });
 

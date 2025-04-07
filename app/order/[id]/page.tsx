@@ -1,39 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
-interface Order {
-  orderId: string;
-  createdAt: string;
-  orderStatus: string;
-  lineItems: LineItems[];
-  totalPrice: { amount: number; currency: string };
-  totalTax: { amount: number; currency: string };
-  serviceCharges: {
-    name: string;
-    amountMoney: { amount: number; currency: string };
-    totalMoney: { amount: number; currency: string };
-  }[];
-}
-
-interface LineItems {
-  quantity: number;
-  catalogObjectId: string;
-  basePriceMoney: { amount: string; currency: string };
-  name: string;
-  imageUrl: string;
-}
-// type GetItemResponse = { items: CookieProduct[] };
-
 import { useParams } from "next/navigation";
-// import { CookieProduct } from "@/components/cookies";
 import Image from "next/image";
+import { Order } from "@/types/customerData";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string>("");
-  // const [items, setItems] = useState<CookieProduct[] | null>(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -50,15 +25,6 @@ export default function OrderDetailsPage() {
 
         const data = await response.json();
         setOrder(data.order);
-
-        // const itemsData = await fetch(
-        //   `/api/get-item?objectIds=${data.order.lineItems.map((item: LineItems) => item.catalogObjectId).join(",")}`
-        // );
-
-        // const { items }: GetItemResponse = await itemsData.json();
-
-        // console.log("Items data:", items);
-        // setItems(items);
       } catch (err) {
         console.error(err);
         setError("Internal error fetching order details");
@@ -132,7 +98,12 @@ export default function OrderDetailsPage() {
                     </p>
                   </div>
                 </div>
-                <div>${item.quantity * Number(item.basePriceMoney.amount)}</div>
+                <div>
+                  $
+                  {(item.quantity * Number(item.basePriceMoney.amount)).toFixed(
+                    2
+                  )}
+                </div>
               </li>
             );
           })}

@@ -2,19 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
-interface Cookie {
-  name: string;
-  quantity: number;
-}
-
-interface PastOrder {
-  id: string;
-  createdAt: string;
-  lineItems: Cookie[];
-  orderStatus: string;
-  totalPrice: { amount: number; currency: string };
-}
+import { PastOrder } from "@/types/customerData";
 
 export default function OrdersPage() {
   const [pastOrders, setPastOrders] = useState<PastOrder[]>([]);

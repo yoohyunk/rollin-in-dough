@@ -56,7 +56,7 @@ const getAllItemsFromCart = async (): Promise<CartItem[]> => {
     }
 
     const snapshot = await getDocs(collection(db, "users", userId, "cart"));
-    console.log("Cart items /////////////:", snapshot.docs);
+
     const mappedItems = snapshot.docs.map((doc) => ({
       product: {
         id: doc.data().productId,
@@ -64,7 +64,7 @@ const getAllItemsFromCart = async (): Promise<CartItem[]> => {
       },
       quantity: doc.data().quantity,
     }));
-    console.log("Mapped items firestore:", mappedItems);
+
     return mappedItems;
   } catch (error) {
     console.error("Error loading cart:", error);

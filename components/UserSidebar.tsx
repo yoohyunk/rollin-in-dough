@@ -46,8 +46,7 @@ export default function UserSidebar({ onSignOut }: UserSidebarProps) {
           <Link href="/orders">Orders</Link>
           <Separator className="border-t border-gray-200" />
           <Link href="/profile">Profile</Link>
-          <Separator className="border-t border-gray-200" />
-          <Link href="/payment">Payment</Link>
+
           <Button onClick={onSignOut}>log out</Button>
         </div>
       </SheetContent>

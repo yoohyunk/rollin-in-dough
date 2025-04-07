@@ -148,8 +148,6 @@ export const signInWithGoogle = async (): Promise<User> => {
       if (!squareRes.ok) {
         throw new Error("Failed to create Square customer");
       }
-    } else {
-      console.log("Existing user. Signing in without creating a new customer.");
     }
 
     return user;

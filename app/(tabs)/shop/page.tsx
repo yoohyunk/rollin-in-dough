@@ -1,8 +1,7 @@
-// MenuPage.tsx
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import CookieCard, { CookieProduct } from "../../../components/cookies";
-import { useCart } from "@/app/Context/NewCartContext"; // Adjust the import path as needed
+import { useCart } from "@/app/Context/NewCartContext";
 
 export default function MenuPage() {
   const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
@@ -29,7 +28,6 @@ export default function MenuPage() {
   }, []);
   const totalPrice = useMemo(() => {
     return cart.reduce((total, cartItem) => {
-      // Find the matching detailed item from cart using product id
       return total + cartItem.product.price * cartItem.quantity;
     }, 0);
   }, [cart]);

@@ -1,4 +1,3 @@
-// app/api/set-cookie/route.ts
 import { NextResponse } from "next/server";
 import { serialize } from "cookie";
 import { verifyIdToken } from "@/firebase/firebaseAdmin";

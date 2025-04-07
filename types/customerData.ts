@@ -60,3 +60,38 @@ export interface DisplayCartItem {
   };
   quantity: number;
 }
+
+export interface Order {
+  orderId: string;
+  createdAt: string;
+  orderStatus: string;
+  lineItems: LineItems[];
+  totalPrice: { amount: number; currency: string };
+  totalTax: { amount: number; currency: string };
+  serviceCharges: {
+    name: string;
+    amountMoney: { amount: number; currency: string };
+    totalMoney: { amount: number; currency: string };
+  }[];
+}
+
+export interface LineItems {
+  quantity: number;
+  catalogObjectId: string;
+  basePriceMoney: { amount: string; currency: string };
+  name: string;
+  imageUrl: string;
+}
+
+export interface Cookie {
+  name: string;
+  quantity: number;
+}
+
+export interface PastOrder {
+  id: string;
+  createdAt: string;
+  lineItems: Cookie[];
+  orderStatus: string;
+  totalPrice: { amount: number; currency: string };
+}
