@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
     const res = await Client.orders.get({
       orderId,
     });
-    console.log("Order response:", res);
     const order = res.order;
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
@@ -50,6 +49,7 @@ export async function GET(request: NextRequest) {
       catalogObjectId: item.catalogObjectId,
       basePriceMoney: item.basePriceMoney,
       name: item.name,
+      imageUrl: "",
     }));
     const serviceCharges = order.serviceCharges?.map((charge) => ({
       name: charge.name,
@@ -65,6 +65,31 @@ export async function GET(request: NextRequest) {
       totalTax: order.totalTaxMoney,
       serviceCharges: serviceCharges,
     };
+
+    // use BATCH GET API to get image URLs using item.id (not item.variation_id)
+    // TODO: not type safe
+    for (const item of lineItems!) {
+      const objId = item.catalogObjectId as string;
+      const relatedObj = await Client.catalog.batchGet({
+        objectIds: [objId],
+        includeRelatedObjects: true,
+      });
+      const objIds = relatedObj.relatedObjects?.map(
+        (item) => item.id
+      ) as string[];
+      const relatedImgs = await Client.catalog.batchGet({
+        objectIds: objIds,
+        includeRelatedObjects: true,
+      });
+      const relatedImgURLs = relatedImgs.relatedObjects
+        ?.filter((item) => item.type === "IMAGE")
+        .map((item) => item.imageData?.url) as string[];
+
+      item.imageUrl = relatedImgURLs.length > 0 ? relatedImgURLs[0] : "";
+
+      console.log("LINEITEMS", item, relatedImgURLs);
+    }
+
     const replacer = (_: string, value: unknown) =>
       typeof value === "bigint" ? value.toString() : value;
 

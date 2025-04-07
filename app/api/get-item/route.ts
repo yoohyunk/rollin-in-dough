@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     return new NextResponse(JSON.stringify({ items: mappedItems }, replacer), {
       headers: {
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+        // "Cache-Control": "s-maxage=3600, stale-while-revalidate",
         "Content-Type": "application/json",
       },
     });

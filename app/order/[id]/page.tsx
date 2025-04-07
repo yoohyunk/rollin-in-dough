@@ -5,15 +5,35 @@ import React, { useEffect, useState } from "react";
 interface Order {
   orderId: string;
   createdAt: string;
-  lineItems: { quantity: number; name: string }[];
+  orderStatus: string;
+  lineItems: LineItems[];
+  totalPrice: { amount: number; currency: string };
+  totalTax: { amount: number; currency: string };
+  serviceCharges: {
+    name: string;
+    amountMoney: { amount: number; currency: string };
+    totalMoney: { amount: number; currency: string };
+  }[];
 }
 
+interface LineItems {
+  quantity: number;
+  catalogObjectId: string;
+  basePriceMoney: { amount: string; currency: string };
+  name: string;
+  imageUrl: string;
+}
+// type GetItemResponse = { items: CookieProduct[] };
+
 import { useParams } from "next/navigation";
+// import { CookieProduct } from "@/components/cookies";
+import Image from "next/image";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string>("");
+  // const [items, setItems] = useState<CookieProduct[] | null>(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -27,9 +47,18 @@ export default function OrderDetailsPage() {
           setError("Error fetching order details");
           return;
         }
+
         const data = await response.json();
-        console.log("Order details:", data);
         setOrder(data.order);
+
+        // const itemsData = await fetch(
+        //   `/api/get-item?objectIds=${data.order.lineItems.map((item: LineItems) => item.catalogObjectId).join(",")}`
+        // );
+
+        // const { items }: GetItemResponse = await itemsData.json();
+
+        // console.log("Items data:", items);
+        // setItems(items);
       } catch (err) {
         console.error(err);
         setError("Internal error fetching order details");
@@ -38,6 +67,11 @@ export default function OrderDetailsPage() {
 
     fetchOrder();
   }, [id]);
+
+  const subtotal = order?.lineItems.reduce(
+    (acc, item) => acc + item.quantity * Number(item.basePriceMoney.amount),
+    0
+  );
 
   if (error) {
     return (
@@ -56,7 +90,7 @@ export default function OrderDetailsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
+    <div className="max-w-2xl mx-auto p-8  bg-white rounded-lg shadow-md overflow-hidden my-10">
       <h1 className="text-3xl font-bold mb-4">Order Details</h1>
       <p className="mb-2">
         <strong>Order ID:</strong> {order.orderId}
@@ -69,14 +103,61 @@ export default function OrderDetailsPage() {
           day: "numeric",
         })}
       </p>
+      <p className="mb-2">
+        <strong>Status:</strong> {order.orderStatus}
+      </p>
       <h2 className="text-2xl font-semibold mt-6 mb-3">Items</h2>
       <ul className="list-disc ml-6">
-        {order.lineItems.map((item, index) => (
-          <li key={index}>
-            {item.quantity} x {item.name}
+        {order.lineItems !== null &&
+          order.lineItems.map((item, index) => {
+            // Look up the corresponding item data by catalogObjectId
+
+            return (
+              <li
+                key={index}
+                className="mb-4 flex justify-between items-center"
+              >
+                <div className="flex items-center space-x-4">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+
+                  <div>
+                    <p>
+                      {item.quantity} x {item.name}
+                    </p>
+                  </div>
+                </div>
+                <div>${item.quantity * Number(item.basePriceMoney.amount)}</div>
+              </li>
+            );
+          })}
+      </ul>
+      <div className="flex justify-between items-center ">
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Subtotal</h2>
+        <p className="text-xl font-bold">${subtotal}</p>
+      </div>
+      <h2 className="text-2xl font-semibold mt-6 mb-3">Service Charges</h2>
+      <ul className="list-disc ml-6">
+        {order.serviceCharges.map((charge, index) => (
+          <li key={index} className="flex justify-between items-center ">
+            <div>{charge.name}:</div>
+            <div>${charge.totalMoney.amount} </div>
           </li>
         ))}
       </ul>
+      <div className="flex justify-between items-center ">
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Total Tax</h2>
+        <p className="text-xl font-bold">${order.totalTax.amount}</p>
+      </div>
+      <div className="flex justify-between items-center ">
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Total Price</h2>
+        <p className="text-xl font-bold">${order.totalPrice.amount}</p>
+      </div>
     </div>
   );
 }

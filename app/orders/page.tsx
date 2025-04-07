@@ -12,6 +12,8 @@ interface PastOrder {
   id: string;
   createdAt: string;
   lineItems: Cookie[];
+  orderStatus: string;
+  totalPrice: { amount: number; currency: string };
 }
 
 export default function OrdersPage() {
@@ -63,18 +65,18 @@ export default function OrdersPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  {/* <p className="font-semibold">${order.total.toFixed(2)}</p> */}
-                  {/* <span
+                  <p className="font-semibold">${order.totalPrice.amount}</p>
+                  <span
                     className={`inline-block px-2 py-1 text-xs rounded-full ${
-                      order.status === "Delivered"
+                      order.orderStatus === "Delivered"
                         ? "bg-green-100 text-green-800"
-                        : order.status === "Shipped"
+                        : order.orderStatus === "Shipped"
                           ? "bg-blue-100 text-blue-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {order.status}
-                  </span> */}
+                    {order.orderStatus}
+                  </span>
                 </div>
               </div>
             </div>

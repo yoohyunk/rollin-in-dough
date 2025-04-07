@@ -1,18 +1,21 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { PiShoppingCart } from "react-icons/pi";
+
+import { useCart } from "@/app/Context/NewCartContext";
 import AuthModal from "@/components/AuthModal";
 import { userSignOut } from "@/firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
 import UserSidebar from "@/components/UserSidebar";
-import { useRouter } from "next/navigation";
-import { PiShoppingCart } from "react-icons/pi";
 
 export default function Header() {
   const headerHeight = "60px";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
+  const { clearCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -25,6 +28,7 @@ export default function Header() {
   }, []);
 
   const handleSignOut = async () => {
+    await clearCart();
     await userSignOut();
     setIsAuth(false);
     router.push("/");

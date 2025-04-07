@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     }
 
     const { email } = decodedToken;
-    console.log("email:", email);
 
     const Client = new SquareClient({
       token: process.env.SQUARE_ACCESS_TOKEN,
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    console.log("Customer ID:", customerId);
+
     const orderRes = await Client.orders.search({
       query: {
         filter: {
@@ -70,21 +69,33 @@ export async function GET(request: NextRequest) {
       returnEntries: true,
       locationIds: [locationId],
     });
-    const orders = orderRes.orderEntries;
 
-    if (!orders || orders.length === 0) {
+    const _orders = orderRes.orderEntries;
+
+    const orderIds = (_orders?.map((order) => order.orderId) ?? []) as string[];
+    const orders = await Client.orders.batchGet({
+      orderIds: orderIds,
+    });
+
+    if (!orders || orders.orders?.length === 0) {
       return NextResponse.json({});
     }
 
-    const orderList = orders.map((order) => {
+    const orderList = orders.orders?.map((order) => {
       return {
-        id: order.orderId,
-        createdAt: order.created_at,
-        lineItems: order.line_items,
+        id: order.id,
+        createdAt: order.createdAt,
+        lineItems: order.lineItems,
+        orderStatus: order.state,
+        totalPrice: order.totalMoney,
       };
     });
-    console.log("Orders:", orderList);
-    return NextResponse.json(orderList);
+
+    const replacer = (_: string, value: unknown) =>
+      typeof value === "bigint" ? value.toString() : value;
+
+    const orderListSerialized = JSON.parse(JSON.stringify(orderList, replacer));
+    return NextResponse.json(orderListSerialized, { status: 200 });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(
