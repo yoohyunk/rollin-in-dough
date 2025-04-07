@@ -41,27 +41,30 @@ An online cookie store platform connecting a passionate home baker with customer
 - **Hosting**: Vercel
 
 ## Project Structure
+
+```bash
 rollin-in-dough/
 ├── app/
-│   ├── (tabs)/                     # Navigation sections
+│   ├── (tabs)/              # Navigation sections
 │   │   ├── cart/
 │   │   ├── contact/
 │   │   ├── instagram/
 │   │   └── shop/
-│   ├── about/                      # About section
-│   ├── api/                        # API endpoints
-│   ├── Context/                    # Context providers
-│   ├── order/[id]/                 # Order details
-│   ├── orders/                     # Orders section
-│   ├── profile/                    # User profile section
-│   ├── layout.tsx                  # Root layout
-│   └── page.tsx                    # Home page
-├── components/                     # Reusable components
-├── firebase/                       # Firebase configuration
-├── lib/                            # Utility functions
-├── public/                         # Static assets
-├── types/                          
-└── package.json                    # Project dependencies
+│   ├── about/               # About section
+│   ├── api/                 # API endpoints
+│   ├── Context/             # Context providers
+│   ├── order/[id]/          # Order details
+│   ├── orders/              # Orders section
+│   ├── profile/             # User profile section
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
+├── components/              # Reusable components
+├── firebase/                # Firebase configuration
+├── lib/                     # Utility functions
+├── public/                  # Static assets
+├── types/
+└── package.json             # Project dependencies
+```
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
@@ -81,12 +84,12 @@ npm firebase
 3. **Start development server**
 ```bash
 npm run dev
-
-Learn More
+```
+## Learn More
 To learn more about Our Project you can check out [the GitHub repository](https://github.com/yoohyunk/rollin-in-dough?tab=readme-ov-file) - your feedback is welcomed!
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-Team
+## Team
 Leona Motyer, Yoohyun Kim, Nawal Mohamuud
 
 
