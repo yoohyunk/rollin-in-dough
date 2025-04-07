@@ -17,7 +17,8 @@ export default function Home() {
           headers: { "Content-Type": "application/json" },
         });
         const data = await res.json();
-        setCookieProducts(data);
+        const items = [data[0], data[1], data[2]];
+        setCookieProducts(items);
       } catch (error) {
         console.error("Error fetching catalog items:", error);
       }
