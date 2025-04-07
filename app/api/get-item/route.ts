@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
       const name = item.itemData?.name || "";
       const description = item.itemData?.description || "";
       const imageIDs: string[] = item.itemData?.imageIds || [];
+      const createdAt = item.created_at || "";
       const imageUrl = imageIDs.length > 0 ? imageDict[imageIDs[0]] || "" : "";
       let price = 0;
 
@@ -66,6 +67,7 @@ export async function GET(request: NextRequest) {
       return {
         id: item.id,
         variationId: item.itemData?.variations[0].id || "",
+        createdAt,
         name,
         description,
         imageUrl,

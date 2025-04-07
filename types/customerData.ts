@@ -25,6 +25,7 @@ export interface CatalogItem {
   id: string;
   type: string;
   imageData?: { url: string };
+  created_at?: string;
   itemData?: {
     name: string;
     description: string;

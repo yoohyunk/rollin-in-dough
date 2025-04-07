@@ -2,24 +2,35 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import CookieCard, { CookieProduct } from "@/components/cookies";
+import { useEffect, useState } from "react";
+import { useCart } from "./Context/NewCartContext";
 
 export default function Home() {
+  const { addCookieToCart } = useCart();
+  const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
+  useEffect(() => {
+    const fetchCatalogItems = async () => {
+      try {
+        const res = await fetch(`/api/get-catalog`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        data.sort(
+          (a: CookieProduct, b: CookieProduct) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        const items = [data[0], data[1], data[2]];
+        setCookieProducts(items);
+      } catch (error) {
+        console.error("Error fetching catalog items:", error);
+      }
+    };
+
+    fetchCatalogItems();
+  }, []);
   // Featured products
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Chocolate Chip",
-      price: 2.99,
-      image: "/chocolate-chip.png",
-    },
-    { id: 2, name: "Sugar Cookie", price: 3.49, image: "/sugar-cookie.png" },
-    {
-      id: 3,
-      name: "Nutella Croissant",
-      price: 4.99,
-      image: "/nutella-croissant.png",
-    },
-  ];
 
   return (
     <>
@@ -108,29 +119,12 @@ export default function Home() {
               Our Popular Treats
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {featuredProducts.map((product) => (
-                <div
+              {cookieProducts.map((product) => (
+                <CookieCard
                   key={product.id}
-                  className="bg-white hover:bg-[#fbdb8a] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-                >
-                  <div className="relative h-64">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2 text-[#fc3296]">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4">${product.price}</p>
-                    <button className="w-full bg-[#fc3296] text-white py-2 rounded-md hover:bg-[#e88b22]  transition-colors duration-300">
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
+                  product={product}
+                  onAddToCart={() => addCookieToCart(product)}
+                />
               ))}
             </div>
             <div className="text-center mt-12">

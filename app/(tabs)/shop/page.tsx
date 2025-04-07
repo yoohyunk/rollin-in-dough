@@ -16,6 +16,10 @@ export default function MenuPage() {
           headers: { "Content-Type": "application/json" },
         });
         const data = await res.json();
+        data.sort(
+          (a: CookieProduct, b: CookieProduct) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         setCookieProducts(data);
       } catch (error) {
         console.error("Error fetching catalog items:", error);

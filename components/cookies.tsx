@@ -5,6 +5,7 @@ import Image from "next/image";
 export interface CookieProduct {
   id: string;
   variationId: string;
+  createdAt: string;
   name: string;
   price: number;
   description: string;
