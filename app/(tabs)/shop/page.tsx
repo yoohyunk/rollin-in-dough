@@ -85,7 +85,7 @@ export default function MenuPage() {
                 </div>
                 <button
                   className="mt-4 w-full bg-[#fc3296] text-white py-2 px-4 rounded hover:bg-[#fbdb8a] hover:text-[#fc3296] transition-colors duration-300"
-                   onClick={() => router.push("/cart")} //changed from alert proceed to checkout to routing to cart
+                  onClick={() => router.push("/cart")}
                 >
                   Checkout
                 </button>
