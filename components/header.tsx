@@ -15,7 +15,7 @@ export default function Header() {
   const headerHeight = "60px";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
-  const { clearCart } = useCart();
+  const { clearCartWhenSignOut } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Header() {
   }, []);
 
   const handleSignOut = async () => {
-    await clearCart();
+    await clearCartWhenSignOut();
     await userSignOut();
     setIsAuth(false);
     router.push("/");
