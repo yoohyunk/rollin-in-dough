@@ -2,11 +2,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import CookieCard, { CookieProduct } from "../../../components/cookies";
 import { useCart } from "@/app/Context/NewCartContext";
+import { useRouter } from "next/navigation";
 
 export default function MenuPage() {
   const [cookieProducts, setCookieProducts] = useState<CookieProduct[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { cart, addCookieToCart, updateCart } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCatalogItems = async () => {
@@ -83,7 +85,7 @@ export default function MenuPage() {
                 </div>
                 <button
                   className="mt-4 w-full bg-[#fc3296] text-white py-2 px-4 rounded hover:bg-[#fbdb8a] hover:text-[#fc3296] transition-colors duration-300"
-                  onClick={() => alert("Proceed to checkout!")}
+                   onClick={() => router.push("/cart")} //changed from alert proceed to checkout to routing to cart
                 >
                   Checkout
                 </button>
