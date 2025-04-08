@@ -49,9 +49,6 @@ const CartPage: React.FC = () => {
     if (reDirectUrl) {
       await clearCart();
       router.push(reDirectUrl);
-    } else {
-      //route to cart page
-      router.push("/cart");
     }
 
     alert("Order placed successfully!");
