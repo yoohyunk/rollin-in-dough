@@ -3,29 +3,49 @@
 An online cookie store platform connecting a passionate home baker with customers with a sweet tooth. Built with React and Node.js web application that allows customers to choose and buy from a variety of cookies.
 
 ## Deploy on Vercel
-[Vercel Platform](https://rollin-in-dough.onrender.com) - Live Demostration
+[Vercel Platform](https://rollin-in-dough.vercel.app/) - Live Demostration
 
 ## Features 
 
 ### Core Functionality
-- **Auth System**: 
-  - Google & email/password authentication
-  - Firebase management
-  - Seamless guest/login state management
+- **Auth System**:
+  - **Cookie-Based Authorization**:
+    - **Implementation**: Automatically sets a secure, HTTP-only cookie using the Set-Cookie header to protect sensitive endpoints.
+    - **Purpose**: Ensures that each request for secure data includes the proper authorization token.
+  - **Customer Synchronization**:
+    - **Implementation**: Square is used to create customer records, which are then synchronized with Firebase Auth.
+    - **Purpose**: To link Square customer data with Firebase Auth for simplified customer record management.
+  - **Authentication Options**:
+    - Supports both Google and email/password login, ensuring flexible sign-in options.
+  - **Firebase Management**:
+    - Firebase is used to manage authentication and user data.
+  - **Seamless State Management**:
+    - Ensures cohesive state management and smooth transitions between guest and logged-in states.
 
 - **Cart System**:
-  - Hybrid storage (LocalStorage + Firebase sync)
-  - Real-time adjustment updates
-  - Automatic merging of carts
+  - **Hybrid Storage Model**:
+    - **Implementation**: Integrates LocalStorage for guests and Firestore for logged-in users.
+    - **Purpose**: Allows cart data to persist locally until the user logs in, at which point it is synced to Firestore.
+  - **Real-Time Adjustments**:
+    - **Implementation**: Ensures that cart contents are instantly updated as changes are made.
+    - **Purpose**: Handles the cart contents and ensures they are updated in real-time as modifications occur.
+  - **Automatic Cart Merging**:
+    - **Implementation**: Merges local cart data with the Firestore cart when the customer logs in.
+    - **Purpose**: Guarantees no data is lost, providing an optimized and efficient shopping experience.
 
 - **Order Management**:
-  - Square API integration for payments
-  - Order history tracking
+  - **Square API Integration for Checkout**:
+    - **Implementation**: Employs the Square API to create orders, process payments, and redirect users to the Square Checkout URL.
+  - **Order History Tracking**:
+    - A detailed history of orders is maintained for customer reference and management.
 
 ### UX Features
-- WebDev responsive design
-- Interactive product cards
-- Social media integration
+ **Responsive Web Design**:
+  - Guarantees consistent user experience across devices.
+- **Interactive Product Cards**:
+  - Enhances user engagement with dynamic, clickable product displays.
+- **Social Media Integration**:
+  - Facilitates sharing and connectivity, allowing users to integrate with social sites such as Instagram.
 
 ## Tech Stack
 
@@ -36,9 +56,10 @@ An online cookie store platform connecting a passionate home baker with customer
 ### Backend
 - **Authentication**: Firebase Auth
 - **Database**: Firestore
+- **Square SDK**: Utilized for managing customer information, handling catalog operations, processing checkouts, and managing orders.
 
 ### DevOps
-- **Hosting**: Vercel
+- **Hosting**: Deployed on Vercel, guaranteeing reliable and scalable web hosting.
 
 ## Project Structure
 
