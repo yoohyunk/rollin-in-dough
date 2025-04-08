@@ -3,7 +3,7 @@
 An online cookie store platform connecting a passionate home baker with customers with a sweet tooth. Built with React and Node.js web application that allows customers to choose and buy from a variety of cookies.
 
 ## Deploy on Vercel
-[Vercel Platform](https://rollin-in-dough.onrender.com/about) - Live Demostration
+[Vercel Platform](https://rollin-in-dough.onrender.com) - Live Demostration
 
 ## Features 
 
@@ -66,8 +66,6 @@ rollin-in-dough/
 └── package.json             # Project dependencies
 ```
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ### Getting Started
 
 1. **Clone repository**
@@ -87,6 +85,9 @@ npm run dev
 ```
 ## Learn More
 To learn more about Our Project you can check out [the GitHub repository](https://github.com/yoohyunk/rollin-in-dough?tab=readme-ov-file) - your feedback is welcomed!
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## Team
