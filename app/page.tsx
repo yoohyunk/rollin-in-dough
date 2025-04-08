@@ -27,7 +27,7 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative h-[80vh] flex items-center justify-center overflow-hidden mb-12">
           <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-[#fc3296]/30"></div>
+            <div className="absolute inset-0 bg-[#fc3296]/35" ></div>
           </div>
           <div className="relative z-10 text-center px-4">
             <motion.h1
