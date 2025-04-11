@@ -18,7 +18,8 @@ interface CartContextValue {
     quantity: number,
     cookieProduct: DisplayCartItem
   ) => Promise<void>;
-  clearCart: () => Promise<void>;
+  clearCartAfterCheckOut: () => Promise<void>;
+  clearCartWhenSignOut: () => Promise<void>;
 }
 
 const readLocalCart = (): CartItem[] => {
@@ -121,7 +122,7 @@ export const useCart = () => {
     }
   };
 
-  const clearCart = async () => {
+  const clearCartAfterCheckOut = async () => {
     if (isLoggedIn) {
       await clearCartFirestore();
     }
@@ -130,6 +131,10 @@ export const useCart = () => {
     setDisplayCartItems([]);
   };
 
+  const clearCartWhenSignOut = async () => {
+    updateLocalCart([], true);
+    setDisplayCartItems([]);
+  };
   const updateCart = async (
     quantity: number,
     cookieProduct: DisplayCartItem
@@ -213,7 +218,8 @@ export const useCart = () => {
     cart: displayCartItems,
     addCookieToCart,
     updateCart,
-    clearCart,
+    clearCartAfterCheckOut,
+    clearCartWhenSignOut,
   };
 };
 
@@ -222,9 +228,12 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { cart, updateCart, clearCart } = useCart();
+  const { cart, updateCart, clearCartAfterCheckOut, clearCartWhenSignOut } =
+    useCart();
   return (
-    <CartContext.Provider value={{ cart, updateCart, clearCart }}>
+    <CartContext.Provider
+      value={{ cart, updateCart, clearCartAfterCheckOut, clearCartWhenSignOut }}
+    >
       {children}
     </CartContext.Provider>
   );

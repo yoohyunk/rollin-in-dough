@@ -6,7 +6,7 @@ import { getAuth } from "firebase/auth";
 import { useCart } from "@/app/Context/NewCartContext";
 
 const CartPage: React.FC = () => {
-  const { cart, updateCart, clearCart } = useCart();
+  const { cart, updateCart, clearCartAfterCheckOut } = useCart();
   const router = useRouter();
 
   const calculateTotal = () => {
@@ -47,7 +47,7 @@ const CartPage: React.FC = () => {
     }
     const reDirectUrl = data.order.url;
     if (reDirectUrl) {
-      await clearCart();
+      await clearCartAfterCheckOut();
       router.push(reDirectUrl);
     }
 
