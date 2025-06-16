@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { useCart } from "@/app/Context/NewCartContext";
+import { uploadOrderToBlob } from "@/lib/uploadToBlob";
 
 const CartPage: React.FC = () => {
   const { cart, updateCart, clearCart } = useCart();
@@ -46,7 +47,33 @@ const CartPage: React.FC = () => {
       return;
     }
     const reDirectUrl = data.order.url;
+
     if (reDirectUrl) {
+      await uploadOrderToBlob(data.order.id, {
+        orderId: data.order.id,
+        createdAt: new Date().toISOString(),
+        orderStatus: "PENDING",
+        lineItems: cart.map((item) => ({
+          quantity: item.quantity,
+          catalogObjectId: item.product.variationId,
+          basePriceMoney: {
+            amount: item.product.price.toString(),
+            currency: "CAD",
+          },
+          name: item.product.name,
+          imageUrl: item.product.imageUrl,
+        })),
+        totalPrice: {
+          amount: Number(calculateTotal()),
+          currency: "CAD",
+        },
+        totalTax: {
+          amount: 0,
+          currency: "CAD",
+        },
+        serviceCharges: [],
+      });
+
       await clearCart();
       router.push(reDirectUrl);
     }
