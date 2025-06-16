@@ -17,4 +17,3 @@ if (!admin.apps.length) {
 export const verifyIdToken = async (token: string) => {
   return admin.auth().verifyIdToken(token);
 };
-//dklsfj
