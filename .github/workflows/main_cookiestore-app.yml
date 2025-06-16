@@ -22,6 +22,7 @@ env:
 
 jobs:
   build:
+    environment: pr      
     runs-on: ubuntu-latest
     permissions:
       contents: read
