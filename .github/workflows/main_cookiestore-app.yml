@@ -22,7 +22,7 @@ env:
 
 jobs:
   build:
-    environment: pr           # ← GitHub ‘pr’ environment 사용
+    environment: pr
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -55,7 +55,7 @@ jobs:
           path: release.zip
 
   deploy:
-    environment: pr           # ← 요기도 동일하게
+    environment: pr
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -80,23 +80,32 @@ jobs:
           tenant-id:       ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Configure App Settings (환경변수)
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az webapp config appsettings set \
+              --resource-group cookiestore-app-rg \
+              --name cookiestore-app \
+              --settings \
+                SQUARE_ACCESS_TOKEN="${{ env.SQUARE_ACCESS_TOKEN }}" \
+                SQUARE_LOCATION_ID="${{ env.SQUARE_LOCATION_ID }}" \
+                FIREBASE_PRIVATE_KEY="${{ env.FIREBASE_PRIVATE_KEY }}" \
+                NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL="${{ env.NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL }}" \
+                NEXT_PUBLIC_FIREBASE_API_KEY="${{ env.NEXT_PUBLIC_FIREBASE_API_KEY }}" \
+                NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="${{ env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}" \
+                NEXT_PUBLIC_FIREBASE_PROJECT_ID="${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}" \
+                NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="${{ env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}" \
+                NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="${{ env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}" \
+                NEXT_PUBLIC_FIREBASE_APP_ID="${{ env.NEXT_PUBLIC_FIREBASE_APP_ID }}" \
+                NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="${{ env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}" \
+                AZURE_STORAGE_CONNECTION_STRING="${{ env.AZURE_STORAGE_CONNECTION_STRING }}"
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name:       cookiestore-app
-          package:        release.zip
-          enable-oryx-build:  true
-          # enable-oryx-build 기본(true) → Azure가 서버에서 다시 빌드하도록
-          app-settings: |
-            SQUARE_ACCESS_TOKEN=${{ env.SQUARE_ACCESS_TOKEN }}
-            SQUARE_LOCATION_ID=${{ env.SQUARE_LOCATION_ID }}
-            FIREBASE_PRIVATE_KEY=${{ env.FIREBASE_PRIVATE_KEY }}
-            NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL=${{ env.NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL }}
-            NEXT_PUBLIC_FIREBASE_API_KEY=${{ env.NEXT_PUBLIC_FIREBASE_API_KEY }}
-            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-            NEXT_PUBLIC_FIREBASE_APP_ID=${{ env.NEXT_PUBLIC_FIREBASE_APP_ID }}
-            NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-            AZURE_STORAGE_CONNECTION_STRING=${{ env.AZURE_STORAGE_CONNECTION_STRING }}
+          resource-group-name: cookiestore-app-rg    # 실제 리소스 그룹으로 바꿔주세요
+          app-name:            cookiestore-app
+          package:             release.zip
+          startup-command:     'npm run start'
