@@ -50,7 +50,7 @@ jobs:
         with:
           name: app-package
           path: release.zip
-
+          
   deploy:
     environment: pr
     runs-on: ubuntu-latest
@@ -80,7 +80,8 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name:      cookiestore-app
-          slot-name:     Production
-          package:       release.zip
+          app-name:        cookiestore-app
+          slot-name:       Production
+          package:         release.zip
+          clean:           true
           startup-command: 'npm start'
