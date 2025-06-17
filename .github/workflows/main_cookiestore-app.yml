@@ -79,10 +79,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+      - name: Deploy via Azure CLI ZIP Deploy
+        uses: azure/CLI@v1
         with:
-          app-name: 'cookiestore-app'
-          package: 'release.zip'
-          deployment-method: zipdeploy
-          remove-additional-files: true
+          azcliversion: 2.50.0
+          inlineScript: |
+            az webapp deploy \
+              --resource-group cookiestore-rg \
+              --name cookiestore-app \
+              --src-path release.zip \
+              --type zip
