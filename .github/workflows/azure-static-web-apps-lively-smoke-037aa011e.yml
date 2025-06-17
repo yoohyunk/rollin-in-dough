@@ -37,7 +37,7 @@ jobs:
           action:                             upload
 
           # ─────────────────────────────────────────────
-          app_location:    app      # <-- your Next.js folder
+          app_location:    "app"      # <-- your Next.js folder
           api_location:          "" # <-- leave blank for pages/api
           output_location:       "" # <-- let Oryx detect .next + SSR
           # ─────────────────────────────────────────────
