@@ -86,7 +86,7 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az webapp config appsettings set \
-              --resource-group cookiestore-app-rg \
+              --resource-group cookiestore-rg \
               --name cookiestore-app \
               --settings \
                 SQUARE_ACCESS_TOKEN="${{ env.SQUARE_ACCESS_TOKEN }}" \
