@@ -105,9 +105,10 @@ jobs:
         run: sleep 15
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
           resource-group-name: cookiestore-rg   # 실제 RG 이름으로 바꿔주세요
           app-name:            cookiestore-app
           package:             release.zip
+          enable-oryx-build:   true   
           startup-command:     'npm run start'
