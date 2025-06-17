@@ -16,19 +16,15 @@ jobs:
     environment: pr
     runs-on: ubuntu-latest
 
-    # ────────────────────────────────────────────────────────────────
-    # ONLY the vars your build needs go here (e.g. service-account JSON).
-    # Everything else (public NEXT_PUBLIC_*, runtime-only secrets)
-    # should live in Azure Static Web App → Configuration → Application settings.
     env:
+      # Only build‐time secrets here (e.g. your Firebase service account JSON)
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-    # ────────────────────────────────────────────────────────────────
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build & deploy to Static Web Apps
+      - name: Build & Deploy Next.js to Azure Static Web Apps
         id: swadeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -36,11 +32,12 @@ jobs:
           repo_token:                         ${{ secrets.GITHUB_TOKEN }}
           action:                             upload
 
-          # ─────────────────────────────────────────────
-          app_location:    "app"      # <-- your Next.js folder
-          api_location:          "" # <-- leave blank for pages/api
-          output_location:       "" # <-- let Oryx detect .next + SSR
-          # ─────────────────────────────────────────────
+          # ─────────── Next.js build settings ───────────
+          app_location:      "app"                         # where your Next.js lives
+          app_build_command: "npm ci && npm run build"     # ensure you actually build
+          output_location:   "app/.next"                   # point to the .next folder
+          api_location:      ""                            # leave blank for pages/api
+          # ────────────────────────────────────────────────
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
