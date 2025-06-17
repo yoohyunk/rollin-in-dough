@@ -105,7 +105,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          resource-group-name: cookiestore-app-rg    # 실제 리소스 그룹으로 바꿔주세요
+          resource-group-name: cookiestore-rg    # 실제 리소스 그룹으로 바꿔주세요
           app-name:            cookiestore-app
           package:             release.zip
           startup-command:     'npm run start'
