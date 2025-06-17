@@ -43,6 +43,7 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID:             ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:     ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
           AZURE_STORAGE_CONNECTION_STRING:         ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL: ${{ secrets.NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PROUD_ISLAND_04C318A1E }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
