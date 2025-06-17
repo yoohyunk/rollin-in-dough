@@ -51,7 +51,7 @@ jobs:
           path: release.zip
 
   deploy:
-    environment: pr      
+    environment: pr
     runs-on: ubuntu-latest
     needs: build
     permissions:
@@ -79,13 +79,10 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy via Azure CLI ZIP Deploy
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.50.0
-          inlineScript: |
-            az webapp deploy \
-              --resource-group cookiestore-rg \
-              --name cookiestore-app \
-              --src-path release.zip \
-              --type zip
+      - name: Deploy via Azure CLI (zip)
+        run: |
+          az webapp deploy \
+            --resource-group cookiestore-rg \
+            --name cookiestore-app \
+            --src-path release.zip \
+            --type zip
