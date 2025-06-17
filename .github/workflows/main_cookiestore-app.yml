@@ -80,20 +80,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name:           cookiestore-app
-          slot-name:          Production
-          package:            release.zip
-          enable-oryx-build:  false
-          app-settings: |
-            SQUARE_ACCESS_TOKEN=${{ env.SQUARE_ACCESS_TOKEN }}
-            SQUARE_LOCATION_ID=${{ env.SQUARE_LOCATION_ID }}
-            FIREBASE_PRIVATE_KEY=${{ env.FIREBASE_PRIVATE_KEY }}
-            NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL=${{ env.NEXT_PUBLIC_FIREBASE_CLIENT_EMAIL }}
-            NEXT_PUBLIC_FIREBASE_API_KEY=${{ env.NEXT_PUBLIC_FIREBASE_API_KEY }}
-            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-            NEXT_PUBLIC_FIREBASE_APP_ID=${{ env.NEXT_PUBLIC_FIREBASE_APP_ID }}
-            NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-            AZURE_STORAGE_CONNECTION_STRING=${{ env.AZURE_STORAGE_CONNECTION_STRING }}
+          app-name:      cookiestore-app
+          slot-name:     Production
+          package:       release.zip
+          startup-command: 'npm start'
